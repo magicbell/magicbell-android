@@ -17,12 +17,12 @@ internal class ConfigNetworkDataSource(
   override suspend fun get(query: Query): Config {
     when (query) {
       is UserQuery -> {
-        val urlConnection = httpClient.prepareRequest("/config",
+        val request = httpClient.prepareRequest("/config",
           query.externalId,
           query.email
         )
 
-        return httpClient.performRequest(urlConnection)?.let {
+        return httpClient.performRequest(request)?.let {
           mapper.map(it)
         } ?: run {
           throw MappingException()
