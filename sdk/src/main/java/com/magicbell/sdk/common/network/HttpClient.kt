@@ -37,7 +37,11 @@ internal class DefaultHttpClient(
 
     addExternalIdOrEmailHeader(externalId, email, request)
 
-    request.method(httpMethod, postBody?.toRequestBody())
+    postBody?.also {
+      request.method(httpMethod, it.toRequestBody())
+      request.addHeader("Content-Type", "application/json")
+    }
+
 
     return request.build()
   }

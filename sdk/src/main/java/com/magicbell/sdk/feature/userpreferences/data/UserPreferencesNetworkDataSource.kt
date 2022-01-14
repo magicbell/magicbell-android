@@ -38,7 +38,6 @@ internal class UserPreferencesNetworkDataSource(
 
   override suspend fun put(query: Query, value: UserPreferencesEntity?): UserPreferencesEntity {
     return when (query) {
-
       is UserQuery -> {
         val userPreferencesEntity = value ?: throw NetworkException(-1, "Value cannot be null")
 

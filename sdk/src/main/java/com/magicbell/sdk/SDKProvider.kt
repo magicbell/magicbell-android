@@ -1,6 +1,6 @@
 package com.magicbell.sdk
 
-import android.content.SharedPreferences
+import android.content.Context
 import com.harmony.kotlin.common.logger.Logger
 import com.magicbell.sdk.common.environment.Environment
 import com.magicbell.sdk.common.logger.LogLevel
@@ -9,12 +9,14 @@ import com.magicbell.sdk.common.network.DefaultHttpClient
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.feature.config.ConfigComponent
 import com.magicbell.sdk.feature.config.DefaultConfigModule
-import com.magicbell.sdk.feature.config.interactor.GetConfigInteractor
 import com.magicbell.sdk.feature.notification.DefaultNotificationModule
 import com.magicbell.sdk.feature.notification.NotificationComponent
-import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInteractor
-import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationInteractor
-import com.magicbell.sdk.feature.notification.interactor.GetNotificationInteractor
+import com.magicbell.sdk.feature.pushsubscription.DefaultPushSubscriptionModule
+import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionComponent
+import com.magicbell.sdk.feature.store.DefaultStoreModule
+import com.magicbell.sdk.feature.store.StoreComponent
+import com.magicbell.sdk.feature.userpreferences.DefaultUserPreferencesModule
+import com.magicbell.sdk.feature.userpreferences.UserPreferencesComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.serialization.json.Json
@@ -22,21 +24,19 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.Executors
 
-interface SDKComponent {
+internal interface SDKComponent {
   fun getLogger(): Logger
-  fun getConfigInteractor(): GetConfigInteractor
-  fun getActionNotificationInteractor(): ActionNotificationInteractor
-  fun getDeleteNotificationInteractor(): DeleteNotificationInteractor
-  fun getNotificationInteractor(): GetNotificationInteractor
+  fun storeComponent(): StoreComponent
+  fun pushSubscriptionComponent(): PushSubscriptionComponent
+  fun userPreferencesComponent(): UserPreferencesComponent
+  fun configComponent(): ConfigComponent
 }
 
 internal class DefaultSDKModule(
   private val environment: Environment,
   private val logLevel: LogLevel,
-  private val sharedPreferences: SharedPreferences,
+  private val context: Context,
 ) : SDKComponent {
-
-  override fun getLogger(): Logger = logLevel.logger()
 
   private val json: Json by lazy {
     Json { ignoreUnknownKeys = true }
@@ -45,7 +45,7 @@ internal class DefaultSDKModule(
   private val httpClient: HttpClient by lazy {
     val okHttpClient = OkHttpClient.Builder()
     if (logLevel == DEBUG) {
-      okHttpClient.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
+      okHttpClient.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
     }
     okHttpClient.followRedirects(false)
 
@@ -56,27 +56,41 @@ internal class DefaultSDKModule(
     )
   }
 
-// Components
-
-  private val coroutinesComponent: CoroutinesComponent by lazy { DefaultCoroutinesModule() }
-  private val configComponent: ConfigComponent by lazy { DefaultConfigModule(httpClient, json, coroutinesComponent.coroutineDispatcher, sharedPreferences) }
-  private val notificationComponent: NotificationComponent by lazy { DefaultNotificationModule(httpClient, json, coroutinesComponent.coroutineDispatcher) }
-
-  override fun getConfigInteractor(): GetConfigInteractor {
-    return configComponent.getGetConfigInteractor()
+  // Components
+  private val coroutinesComponent: CoroutinesComponent by lazy {
+    DefaultCoroutinesModule()
+  }
+  private val configComponent: ConfigComponent by lazy {
+    DefaultConfigModule(
+      httpClient,
+      json,
+      coroutinesComponent.coroutineDispatcher,
+      context.getSharedPreferences("magicbell-sdk", Context.MODE_PRIVATE),
+    )
+  }
+  private val notificationComponent: NotificationComponent by lazy {
+    DefaultNotificationModule(httpClient, json, coroutinesComponent.coroutineDispatcher)
+  }
+  private val pushSubscriptionComponent: PushSubscriptionComponent by lazy {
+    DefaultPushSubscriptionModule(httpClient, json, coroutinesComponent.coroutineDispatcher)
+  }
+  private val userPreferencesComponent: UserPreferencesComponent by lazy {
+    DefaultUserPreferencesModule(httpClient, json, coroutinesComponent.coroutineDispatcher)
+  }
+  private val storeComponent: StoreComponent by lazy {
+    DefaultStoreModule(httpClient, json, coroutinesComponent.coroutineDispatcher, context, notificationComponent, configComponent)
   }
 
-  override fun getActionNotificationInteractor(): ActionNotificationInteractor {
-    return notificationComponent.getActionNotificationInteractor()
-  }
+  // SDK Component
+  override fun getLogger(): Logger = logLevel.logger()
 
-  override fun getDeleteNotificationInteractor(): DeleteNotificationInteractor {
-    return notificationComponent.getDeleteNotificationInteractor()
-  }
+  override fun storeComponent(): StoreComponent = storeComponent
 
-  override fun getNotificationInteractor(): GetNotificationInteractor {
-    return notificationComponent.getNotificationInteractor()
-  }
+  override fun pushSubscriptionComponent(): PushSubscriptionComponent = pushSubscriptionComponent
+
+  override fun userPreferencesComponent(): UserPreferencesComponent = userPreferencesComponent
+
+  override fun configComponent(): ConfigComponent = configComponent
 }
 
 interface CoroutinesComponent {

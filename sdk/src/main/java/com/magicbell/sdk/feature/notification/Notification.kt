@@ -25,7 +25,7 @@ data class Notification(
   @Serializable(with = DateSerializer::class)
   @SerialName("seenAt")
   @JsonNames("seen_at")
-  val seenAt: Date?,
+  var seenAt: Date?,
   @Serializable(with = DateSerializer::class)
   @SerialName("sentAt")
   @JsonNames("sent_at")
@@ -33,15 +33,15 @@ data class Notification(
   @Serializable(with = DateSerializer::class)
   @SerialName("readAt")
   @JsonNames("read_at")
-  val readAt: Date?,
+  var readAt: Date?,
   @Serializable(with = DateSerializer::class)
   @SerialName("archivedAt")
   @JsonNames("archived_at")
-  val archiveAt: Date?,
+  var archivedAt: Date?,
 ) {
   var isRead: Boolean = readAt != null
   var isSeen: Boolean = seenAt != null
-  var isArchived: Boolean = archiveAt != null
+  var isArchived: Boolean = archivedAt != null
 }
 
 @Serializable
