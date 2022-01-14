@@ -4,19 +4,19 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserPreferencesContainerEntity(
+internal data class UserPreferencesContainerEntity(
   @SerialName("notification_preferences")
   val userPreferencesEntity: UserPreferencesEntity,
 )
 
 @Serializable
-data class UserPreferencesEntity(
+internal data class UserPreferencesEntity(
   @SerialName("categories")
-  val preferences: Map<String, PreferencesEntity>?
+  val preferences: Map<String, PreferencesEntity>?,
 )
 
 @Serializable
-class PreferencesEntity(
+internal class PreferencesEntity(
   var email: Boolean,
   @SerialName("in_app")
   var inApp: Boolean,

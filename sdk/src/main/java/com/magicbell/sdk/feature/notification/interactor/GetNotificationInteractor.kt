@@ -7,6 +7,7 @@ import com.magicbell.sdk.feature.notification.data.NotificationQuery
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
+// TODO: do it internal when notificationstore methods
 class GetNotificationInteractor(
   private val coroutineContext: CoroutineContext,
   private val getNotificationInteractor: GetInteractor<Notification>,

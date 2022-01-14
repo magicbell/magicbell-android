@@ -1,19 +1,10 @@
 package com.magicbell.sdk.feature.notification
 
-import kotlinx.serialization.KSerializer
+import com.magicbell.sdk.common.serialization.DateSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonNames
-import java.text.DateFormat
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @Serializable
 internal data class NotificationEntity(val notification: Notification)
@@ -64,23 +55,3 @@ data class Recipient(
   @SerialName("last_name")
   val lastName: String?,
 )
-
-@Serializer(forClass = Date::class)
-object DateSerializer : KSerializer<Date> {
-  private val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSZ", Locale.getDefault())
-
-  override fun deserialize(decoder: Decoder): Date {
-    return try {
-      Date(decoder.decodeLong() * 1000)
-    } catch (e: Exception) {
-      df.parse(decoder.decodeString())
-    }
-  }
-
-  override fun serialize(encoder: Encoder, value: Date) {
-    val dateString = df.format(value)
-    encoder.encodeString(dateString)
-  }
-
-  override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
-}

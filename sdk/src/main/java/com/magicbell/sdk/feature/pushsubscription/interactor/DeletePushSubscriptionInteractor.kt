@@ -6,7 +6,7 @@ import com.magicbell.sdk.feature.pushsubscription.data.DeletePushSubscriptionQue
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class DeletePushSubscriptionInteractor(
+internal class DeletePushSubscriptionInteractor(
   private val coroutineContext: CoroutineContext,
   private val deletePushSubscriptionInteractor: DeleteInteractor,
 ) {

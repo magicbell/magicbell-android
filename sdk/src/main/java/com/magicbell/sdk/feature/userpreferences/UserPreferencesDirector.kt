@@ -5,7 +5,7 @@ import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.userpreferences.interactor.GetUserPreferencesInteractor
 import com.magicbell.sdk.feature.userpreferences.interactor.UpdateUserPreferencesInteractor
 
-interface UserPreferencesDirector {
+internal interface UserPreferencesDirector {
   suspend fun fetch(): UserPreferences
 
   suspend fun update(userPreferences: UserPreferences): UserPreferences

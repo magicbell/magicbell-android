@@ -7,7 +7,7 @@ import com.magicbell.sdk.feature.pushsubscription.data.RegisterPushSubscriptionQ
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class SendPushSubscriptionInteractor(
+internal class SendPushSubscriptionInteractor(
   private val coroutineContext: CoroutineContext,
   private val putPushSubscriptionInteractor: PutInteractor<PushSubscription>,
 ) {

@@ -53,6 +53,5 @@ internal class PushSubscriptionNetworkDataSource(
       }
       else -> throw OperationNotAllowedException()
     }
-
   }
 }

@@ -6,6 +6,7 @@ import com.magicbell.sdk.feature.notification.data.NotificationQuery
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
+// TODO: do it internal when notificationstore methods
 class DeleteNotificationInteractor(
   private val coroutineContext: CoroutineContext,
   private val deleteNotificationInteractor: DeleteInteractor,

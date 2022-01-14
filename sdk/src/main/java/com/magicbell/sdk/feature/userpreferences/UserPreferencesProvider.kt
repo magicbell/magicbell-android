@@ -17,7 +17,7 @@ import com.magicbell.sdk.feature.userpreferences.interactor.UpdateUserPreference
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.CoroutineContext
 
-interface UserPreferencesComponent {
+internal interface UserPreferencesComponent {
   fun userPreferencesDirector(userQuery: UserQuery): UserPreferencesDirector
 }
 

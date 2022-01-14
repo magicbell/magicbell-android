@@ -16,7 +16,7 @@ import com.magicbell.sdk.feature.notification.interactor.GetNotificationInteract
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.CoroutineContext
 
-interface NotificationComponent {
+internal interface NotificationComponent {
   fun getActionNotificationInteractor(): ActionNotificationInteractor
   fun getDeleteNotificationInteractor(): DeleteNotificationInteractor
   fun getNotificationInteractor(): GetNotificationInteractor
