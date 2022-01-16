@@ -2,12 +2,11 @@ package com.magicbell.sdk.common.error
 
 import kotlinx.serialization.Serializable
 
-
 @Serializable
-internal class NetworkErrorEntity(private val errors: List<Error>) : MagicBellError(){
+internal class NetworkErrorEntity(private val errors: List<Error>) {
 
   @Serializable
-  data class Error(
+  internal data class Error(
     val message: String,
   )
 

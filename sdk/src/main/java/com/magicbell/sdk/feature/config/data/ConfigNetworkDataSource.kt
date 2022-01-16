@@ -1,9 +1,9 @@
 package com.magicbell.sdk.feature.config.data
 
 import com.harmony.kotlin.data.datasource.GetDataSource
-import com.harmony.kotlin.data.error.MappingException
 import com.harmony.kotlin.data.error.QueryNotSupportedException
 import com.harmony.kotlin.data.query.Query
+import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.network.StringToEntityMapper
 import com.magicbell.sdk.common.query.UserQuery
@@ -25,7 +25,7 @@ internal class ConfigNetworkDataSource(
         return httpClient.performRequest(request)?.let {
           mapper.map(it)
         } ?: run {
-          throw MappingException()
+          throw MappingException(Config::class.java.name)
         }
       }
       else -> throw QueryNotSupportedException()

@@ -2,12 +2,13 @@ package com.magicbell.sdk.feature.store.data
 
 import android.content.Context
 import com.harmony.kotlin.data.datasource.GetDataSource
-import com.harmony.kotlin.data.error.MappingException
 import com.harmony.kotlin.data.error.OperationNotAllowedException
 import com.harmony.kotlin.data.query.Query
+import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.network.graphql.GraphQLFragment
 import com.magicbell.sdk.common.network.graphql.GraphQLRequest
+import com.magicbell.sdk.common.network.graphql.GraphQLResponse
 import com.magicbell.sdk.feature.store.StorePage
 
 internal class StoresGraphQLNetworkDataSource(
@@ -33,7 +34,7 @@ internal class StoresGraphQLNetworkDataSource(
         httpClient.performRequest(request)?.let {
           outMapper.map(it)
         } ?: run {
-          throw MappingException()
+          throw MappingException(GraphQLResponse::class.java.name)
         }
       }
       else -> throw OperationNotAllowedException()

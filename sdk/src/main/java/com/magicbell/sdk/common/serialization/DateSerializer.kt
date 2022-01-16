@@ -14,7 +14,7 @@ import java.util.Locale
 
 @Serializer(forClass = Date::class)
 internal class DateSerializer : KSerializer<Date> {
-  private val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSZ", Locale.getDefault())
+  private val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault())
 
   override fun deserialize(decoder: Decoder): Date {
     return try {

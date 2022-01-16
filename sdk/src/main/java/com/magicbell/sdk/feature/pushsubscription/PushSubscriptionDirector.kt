@@ -3,6 +3,7 @@ package com.magicbell.sdk.feature.pushsubscription
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.pushsubscription.interactor.DeletePushSubscriptionInteractor
 import com.magicbell.sdk.feature.pushsubscription.interactor.SendPushSubscriptionInteractor
+import kotlinx.coroutines.delay
 
 interface PushSubscriptionDirector {
   suspend fun sendPushSubscription(deviceToken: String)
@@ -16,10 +17,20 @@ internal class DefaultPushSubscriptionDirector(
   private val deletePushSubscriptionInteractor: DeletePushSubscriptionInteractor,
 ) : PushSubscriptionDirector {
   override suspend fun sendPushSubscription(deviceToken: String) {
-    sendPushSubscriptionInteractor(deviceToken, userQuery)
+    runCatching {
+      sendPushSubscriptionInteractor(deviceToken, userQuery)
+    }.onFailure {
+      delay(10000)
+      sendPushSubscription(deviceToken)
+    }
   }
 
   override suspend fun deletePushSubscription(deviceToken: String) {
-    deletePushSubscriptionInteractor(deviceToken, userQuery)
+    runCatching {
+      deletePushSubscriptionInteractor(deviceToken, userQuery)
+    }.onFailure {
+      delay(10000)
+      deletePushSubscription(deviceToken)
+    }
   }
 }

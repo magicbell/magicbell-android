@@ -2,12 +2,13 @@ package com.magicbell.sdk.feature.pushsubscription.data
 
 import com.harmony.kotlin.data.datasource.DeleteDataSource
 import com.harmony.kotlin.data.datasource.PutDataSource
-import com.harmony.kotlin.data.error.MappingException
 import com.harmony.kotlin.data.error.OperationNotAllowedException
 import com.harmony.kotlin.data.query.Query
+import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.error.NetworkException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.feature.pushsubscription.PushSubscription
+import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionEntity
 
 internal class PushSubscriptionNetworkDataSource(
   private val httpClient: HttpClient,
@@ -31,7 +32,7 @@ internal class PushSubscriptionNetworkDataSource(
         httpClient.performRequest(request)?.let {
           outMapper.map(it)
         } ?: run {
-          throw MappingException()
+          throw MappingException(PushSubscriptionEntity::class.java.name)
         }
       }
       else -> throw OperationNotAllowedException()

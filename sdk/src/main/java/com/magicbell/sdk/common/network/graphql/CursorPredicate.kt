@@ -13,10 +13,10 @@ internal class CursorPredicate(val cursor: Cursor = Cursor.Unspecified, val size
 
       when (cursor) {
         is Cursor.Next -> {
-          cursorParams.add(cursor.value)
+          cursorParams.add("after: \"${cursor.value}\"")
         }
         is Cursor.Previous -> {
-          cursorParams.add(cursor.value)
+          cursorParams.add("before: \"${cursor.value}\"")
         }
         Cursor.Unspecified -> {
           // Do nothing
@@ -27,6 +27,6 @@ internal class CursorPredicate(val cursor: Cursor = Cursor.Unspecified, val size
         cursorParams.add("first: $it")
       }
 
-      return cursorParams.joinToString(",, ")
+      return cursorParams.joinToString(", ")
     }
 }

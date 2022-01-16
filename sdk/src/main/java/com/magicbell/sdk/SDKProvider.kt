@@ -20,6 +20,7 @@ import com.magicbell.sdk.feature.userpreferences.UserPreferencesComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.serialization.json.Json
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.Executors
@@ -48,6 +49,7 @@ internal class DefaultSDKModule(
       okHttpClient.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
     }
     okHttpClient.followRedirects(false)
+    okHttpClient.cache(null)
 
     DefaultHttpClient(
       environment,

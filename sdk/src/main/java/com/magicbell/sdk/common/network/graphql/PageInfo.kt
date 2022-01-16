@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal class PageInfo(
-  val endCursor: String?,
+  val endCursor: String? = null,
   val hasNextPage: Boolean,
   val hasPreviousPage: Boolean,
-  val startCursor: String?,
+  val startCursor: String? = null,
 )

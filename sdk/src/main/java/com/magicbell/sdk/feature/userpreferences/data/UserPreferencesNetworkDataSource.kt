@@ -2,9 +2,9 @@ package com.magicbell.sdk.feature.userpreferences.data
 
 import com.harmony.kotlin.data.datasource.GetDataSource
 import com.harmony.kotlin.data.datasource.PutDataSource
-import com.harmony.kotlin.data.error.MappingException
 import com.harmony.kotlin.data.error.OperationNotAllowedException
 import com.harmony.kotlin.data.query.Query
+import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.error.NetworkException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.query.UserQuery
@@ -25,7 +25,7 @@ internal class UserPreferencesNetworkDataSource(
         httpClient.performRequest(request)?.let {
           outMapper.map(it)
         } ?: run {
-          throw MappingException()
+          throw MappingException(UserPreferencesEntity::class.java.name)
         }
       }
       else -> {
@@ -52,7 +52,7 @@ internal class UserPreferencesNetworkDataSource(
         httpClient.performRequest(request)?.let {
           outMapper.map(it)
         } ?: run {
-          throw MappingException()
+          throw MappingException(UserPreferencesEntity::class.java.name)
         }
       }
       else -> {
