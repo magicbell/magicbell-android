@@ -3,6 +3,14 @@ package com.magicbell.sdk.feature.store
 import com.magicbell.sdk.common.network.graphql.GraphQLRepresentable
 import com.magicbell.sdk.feature.notification.Notification
 
+/**
+ * The notification store predicate
+ * @param read: The read status. Defaults to null, no filter.
+ * @param seen: The seen status. Defaults to null, no filter.
+ * @param archived: The archived status. Defaults to false, not archived notifications.
+ * @param categories: The list of categories. Defaults to empty array.
+ * @param topics: The list of topics. Defaults to empty array.
+ */
 data class StorePredicate(
   val read: Boolean? = null,
   val seen: Boolean? = null,

@@ -6,11 +6,24 @@ import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInter
 import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationInteractor
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 
+/**
+ * An store director is the class responsible of creating and managing `NotificationStore` objects.
+ */
 interface StoreDirector {
 
-  fun with(storePredicate: StorePredicate): NotificationStore
+  /**
+   * Returns a notification store for the given predicate.
+   *
+   * @param predicate Notification store's predicate. Define an scope for the notification store. Read, Seen, Archive, Categories, Topics and inApp.
+   */
+  fun with(predicate: StorePredicate): NotificationStore
 
-  fun disposeWith(storePredicate: StorePredicate)
+  /**
+   * Disposes a notification store for the given predicate if exists. To be called when a notification store is no longer needed.
+   *
+   * @param predicate Notification store's predicate.
+   */
+  fun disposeWith(predicate: StorePredicate)
 }
 
 internal interface InternalStoreDirector : StoreDirector {
@@ -27,12 +40,12 @@ internal class PredicateStoreDirector(
 
   private val stores: MutableList<NotificationStore> = mutableListOf()
 
-  override fun with(storePredicate: StorePredicate): NotificationStore {
-    return stores.firstOrNull { it.predicate.hashCode() == storePredicate.hashCode() }?.also { store ->
+  override fun with(predicate: StorePredicate): NotificationStore {
+    return stores.firstOrNull { it.predicate.hashCode() == predicate.hashCode() }?.also { store ->
       return store
     } ?: run {
       val store = NotificationStore(
-        storePredicate,
+        predicate,
         userQuery,
         fetchStorePageInteractor,
         actionNotificationInteractor,
@@ -44,8 +57,10 @@ internal class PredicateStoreDirector(
     }
   }
 
-  override fun disposeWith(storePredicate: StorePredicate) {
-    val notificationIndex = stores.indexOfFirst { it.predicate.hashCode() == storePredicate.hashCode() }
+  // TODO: 16/1/22 create extensions for default store predicates
+
+  override fun disposeWith(predicate: StorePredicate) {
+    val notificationIndex = stores.indexOfFirst { it.predicate.hashCode() == predicate.hashCode() }
     if (notificationIndex != -1) {
       val store = stores[notificationIndex]
       //TODO: Remove observer

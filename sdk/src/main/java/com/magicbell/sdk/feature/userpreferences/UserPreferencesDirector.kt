@@ -6,12 +6,32 @@ import com.magicbell.sdk.feature.userpreferences.interactor.GetUserPreferencesIn
 import com.magicbell.sdk.feature.userpreferences.interactor.UpdateUserPreferencesInteractor
 
 interface UserPreferencesDirector {
+  /**
+   * Fetches the user preferences.
+   *
+   * @return A Result with the user preferences
+   */
   suspend fun fetch(): Result<UserPreferences>
 
+  /**
+   * Updates the user preferences.
+   *
+   * @return A Result with the updated user preferences
+   */
   suspend fun update(userPreferences: UserPreferences): Result<UserPreferences>
 
+  /**
+   * Fetches the preferences for a given category.
+   *
+   * @return A Result with the category preferences
+   */
   suspend fun fetchPreferences(category: String): Result<Preferences>
 
+  /**
+   * Updates the preferences for a given category.
+   *
+   * @return A Result with the updated category preferences
+   */
   suspend fun updatePreferences(category: String, preferences: Preferences): Result<Preferences>
 }
 

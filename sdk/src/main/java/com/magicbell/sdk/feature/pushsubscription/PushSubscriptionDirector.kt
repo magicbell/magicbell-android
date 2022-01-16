@@ -6,8 +6,14 @@ import com.magicbell.sdk.feature.pushsubscription.interactor.SendPushSubscriptio
 import kotlinx.coroutines.delay
 
 interface PushSubscriptionDirector {
+  /**
+   * Sends a push subscription
+   */
   suspend fun sendPushSubscription(deviceToken: String)
 
+  /**
+   * Deletes a push subscription
+   */
   suspend fun deletePushSubscription(deviceToken: String)
 }
 

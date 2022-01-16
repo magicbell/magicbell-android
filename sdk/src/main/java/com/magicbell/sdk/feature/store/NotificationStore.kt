@@ -18,6 +18,9 @@ import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import java.util.Date
 
 // TODO: Methods for collection
+/**
+ * The NotificationStore class represents a collection of MagicBell notifications.
+ */
 class NotificationStore internal constructor(
   val predicate: StorePredicate,
   private val userQuery: UserQuery,
@@ -41,6 +44,11 @@ class NotificationStore internal constructor(
 
   private var nextPageCursor: String? = null
 
+  /**
+   * Clears the store and fetches first page.
+   *
+   * @return A Result with the list of notifications.
+   */
   suspend fun refresh(): Result<List<Notification>> {
     return runCatching {
       val cursorPredicate = CursorPredicate(size = pageSize)
@@ -56,6 +64,12 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Fetches the next page of notifications. It can be called multiple times to obtain all pages.
+   * This method will notify the observers if changes are made into the store.
+   *
+   * @return A Result with the list of notifications.
+   */
   suspend fun fetch(): Result<List<Notification>> {
     return runCatching {
       if (!hasNextPage) {
@@ -79,6 +93,12 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Deletes a notification.
+   *
+   * @param notification The notification.
+   * @return A Result with the error if exists.
+   */
   suspend fun delete(notification: Notification): Result<Unit> {
     return runCatching {
       deleteNotificationInteractor(notification.id, userQuery)
@@ -91,6 +111,12 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Marks a notification as read.
+   *
+   * @param notification The notification.
+   * @return A Result with the modified notification.
+   */
   suspend fun markAsRead(notification: Notification): Result<Notification> {
     return runCatching {
       executeNotificationAction(
@@ -102,6 +128,12 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Marks a notification as unread.
+   *
+   * @param notification The notification.
+   * @return A Result with the modified notification.
+   */
   suspend fun markAsUnread(notification: Notification): Result<Notification> {
     return runCatching {
       executeNotificationAction(
@@ -113,6 +145,12 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Marks a notification as archived.
+   *
+   * @param notification The notification.
+   * @return A Result with the modified notification.
+   */
   suspend fun archive(notification: Notification): Result<Notification> {
     return runCatching {
       executeNotificationAction(
@@ -124,6 +162,12 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Marks a notification as unarchived.
+   *
+   * @param notification The notification.
+   * @return A Result with the modified notification.
+   */
   suspend fun unarchive(notification: Notification): Result<Notification> {
     return runCatching {
       executeNotificationAction(
@@ -135,6 +179,11 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Marks all notifications as read.
+   *
+   * @return A Result with the error if exists.
+   */
   suspend fun markAllNotificationAsRead(): Result<Unit> {
     return runCatching {
       executeAllNotificationsAction(
@@ -146,6 +195,11 @@ class NotificationStore internal constructor(
     }
   }
 
+  /**
+   * Marks all notifications as seen.
+   *
+   * @return A Result with the error if exists.
+   */
   suspend fun markAllNotificationAsSeen(): Result<Unit> {
     return runCatching {
       executeAllNotificationsAction(
@@ -157,6 +211,34 @@ class NotificationStore internal constructor(
           }
         }
       )
+    }
+  }
+
+  //region Private methods
+  private fun clear() {
+    edges.clear()
+    totalCount = 0
+    unreadCount = 0
+    unseenCount = 0
+    nextPageCursor = null
+    hasNextPage = true
+    // TODO: Notify changes
+  }
+
+  private suspend fun executeNotificationAction(
+    notification: Notification,
+    action: NotificationActionQuery.Action,
+    modifications: (Notification) -> Unit,
+  ): Result<Notification> {
+    return runCatching {
+      actionNotificationInteractor(action, notification.id, userQuery)
+      val notificationIndex = edges.indexOfFirst { it.node.id == notification.id }
+      if (notificationIndex != -1) {
+        modifications(notification)
+        notification
+      } else {
+        throw MagicBellError("Notification not found in Store")
+      }
     }
   }
 
@@ -172,6 +254,18 @@ class NotificationStore internal constructor(
     }
   }
 
+  private fun configurePagination(storePage: StorePage) {
+    val pageInfo = storePage.pageInfo
+    nextPageCursor = pageInfo.endCursor
+    hasNextPage = pageInfo.hasNextPage
+  }
+
+  private fun configureCount(storePage: StorePage) {
+    totalCount = storePage.totalCount
+    unreadCount = storePage.unreadCount
+    unseenCount = storePage.unseenCount
+  }
+
   private fun markNotificationAsRead(notification: Notification, storePredicate: StorePredicate) {
     if (notification.seenAt == null) {
       unseenCount - 1
@@ -180,8 +274,8 @@ class NotificationStore internal constructor(
     if (notification.readAt == null) {
       unreadCount -= 1
 
-      storePredicate.read?.also {
-        if (it) {
+      storePredicate.read?.also { isRead ->
+        if (isRead) {
           totalCount -= 1
         } else {
           totalCount -= 1
@@ -232,46 +326,28 @@ class NotificationStore internal constructor(
     notification.archivedAt = Date()
   }
 
-  private suspend fun executeNotificationAction(
-    notification: Notification,
-    action: NotificationActionQuery.Action,
-    modifications: (Notification) -> Unit,
-  ): Result<Notification> {
-    return runCatching {
-      actionNotificationInteractor(action, notification.id, userQuery)
-      val notificationIndex = edges.indexOfFirst { it.node.id == notification.id }
-      if (notificationIndex != -1) {
-        modifications(notification)
-        notification
-      } else {
-        throw MagicBellError("Notification not found in Store")
+  private fun updateCountersWhenDelete(notification: Notification, predicate: StorePredicate) {
+    totalCount -= 1
+
+    decreaseUnreadCountIfUnreadPredicate(predicate, notification)
+    decreaseUnseenCountIfNotificationWasUnseen(notification)
+  }
+
+  private fun decreaseUnreadCountIfUnreadPredicate(predicate: StorePredicate, notification: Notification) {
+    if (predicate.read != null) {
+      if (predicate.read == false) {
+        unreadCount -= 1
+      }
+    } else {
+      notification.readAt.also {
+        unreadCount -= 1
       }
     }
   }
 
-  private fun updateCountersWhenDelete(notification: Notification, predicate: StorePredicate) {
-
-  }
-
-  private fun configurePagination(storePage: StorePage) {
-    val pageInfo = storePage.pageInfo
-    nextPageCursor = pageInfo.endCursor
-    hasNextPage = pageInfo.hasNextPage
-  }
-
-  private fun configureCount(storePage: StorePage) {
-    totalCount = storePage.totalCount
-    unreadCount = storePage.unreadCount
-    unseenCount = storePage.unseenCount
-  }
-
-  private fun clear() {
-    edges.clear()
-    totalCount = 0
-    unreadCount = 0
-    unseenCount = 0
-    nextPageCursor = null
-    hasNextPage = true
-    // TODO: Notify changes
+  private fun decreaseUnseenCountIfNotificationWasUnseen(notification: Notification) {
+    notification.seenAt.also {
+      unseenCount -= 1
+    }
   }
 }

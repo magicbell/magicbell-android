@@ -10,6 +10,9 @@ import java.util.Date
 @Serializable
 internal data class NotificationEntity(val notification: Notification)
 
+/**
+ * A MagicBell notification object
+ */
 @Serializable
 data class Notification(
   val id: String,
