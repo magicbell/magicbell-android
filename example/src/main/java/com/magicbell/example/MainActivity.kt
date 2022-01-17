@@ -3,7 +3,7 @@ package com.magicbell.example
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.magicbell.example.databinding.ActivityMainBinding
-import com.magicbell.sdk.MagicBell
+import com.magicbell.sdk.MagicBellClient
 import com.magicbell.sdk.common.logger.LogLevel
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery
@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     setSupportActionBar(binding.toolbar)
 
-    val magicBell = MagicBell("34ed17a8482e44c765d9e163015a8d586f0b3383", context = applicationContext, logLevel = LogLevel.DEBUG)
+    val magicBell = MagicBellClient("34ed17a8482e44c765d9e163015a8d586f0b3383", context = applicationContext, logLevel = LogLevel.DEBUG)
     val user = magicBell.forUserEmail("javier@mobilejazz.com")
     GlobalScope.launch {
       user.store.with(StorePredicate()).refresh().fold(onSuccess = {

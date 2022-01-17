@@ -19,7 +19,7 @@ import java.net.URL
  * @param logLevel The log level accepts none or debug. Default to none.
  * @param context The application context
  */
-class MagicBell(
+class MagicBellClient(
   apiKey: String,
   apiSecret: String? = null,
   enableHMAC: Boolean = false,
