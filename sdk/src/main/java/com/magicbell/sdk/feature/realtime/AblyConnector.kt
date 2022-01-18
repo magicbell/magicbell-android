@@ -12,6 +12,7 @@ import io.ably.lib.realtime.ConnectionState
 import io.ably.lib.realtime.ConnectionStateListener
 import io.ably.lib.types.ClientOptions
 import io.ably.lib.types.Message
+import io.ably.lib.types.Param
 import java.util.WeakHashMap
 
 internal class AblyConnector(
@@ -60,7 +61,7 @@ internal class AblyConnector(
       environment.isHMACEnabled,
       userQuery.externalId,
       userQuery.email)
-    clientOptions.headers = headers
+    clientOptions.authHeaders = headers
     ablyClient = AblyRealtime(clientOptions)
 
     startListenConnectionChanges()
@@ -79,27 +80,27 @@ internal class AblyConnector(
     isHMACEnabled: Boolean,
     externalId: String?,
     email: String?,
-  ): Map<String, String> {
-    val headers = mutableMapOf("X-MAGICBELL-API-KEY" to apiKey)
+  ): Array<Param> {
+    val headers = mutableListOf(Param("X-MAGICBELL-API-KEY", apiKey))
 
     if (apiSecret != null && isHMACEnabled) {
       if (externalId != null) {
         val hmac = externalId.hmac(apiSecret)
-        headers["X-MAGICBELL-USER-HMAC"] = hmac
+        headers.add(Param("X-MAGICBELL-USER-HMAC", hmac))
       } else if (email != null) {
         val hmac = email.hmac(apiSecret)
-        headers["X-MAGICBELL-USER-HMAC"] = hmac
+        headers.add(Param("X-MAGICBELL-USER-HMAC", hmac))
       }
     }
 
     externalId?.also {
-      headers["X-MAGICBELL-USER-EXTERNAL-ID"] = it
+      headers.add(Param("X-MAGICBELL-USER-EXTERNAL-ID", it))
     }
     email?.also {
-      headers["X-MAGICBELL-USER-EMAIL"] = it
+      headers.add(Param("X-MAGICBELL-USER-EMAIL", it))
     }
 
-    return headers.toMap()
+    return headers.toTypedArray()
   }
 
   private fun startListenConnectionChanges() {

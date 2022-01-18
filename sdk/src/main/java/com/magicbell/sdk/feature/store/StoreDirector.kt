@@ -2,9 +2,15 @@ package com.magicbell.sdk.feature.store
 
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.config.interactor.DeleteConfigInteractor
+import com.magicbell.sdk.feature.config.interactor.GetConfigInteractor
 import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInteractor
 import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationInteractor
+import com.magicbell.sdk.feature.realtime.StoreRealTime
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 /**
  * An store director is the class responsible of creating and managing `NotificationStore` objects.
@@ -30,15 +36,34 @@ internal interface InternalStoreDirector : StoreDirector {
   suspend fun logout()
 }
 
-internal class PredicateStoreDirector(
+internal class RealTimeByPredicateStoreDirector(
   private val userQuery: UserQuery,
+  private val coroutineContext: CoroutineContext,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
   private val deleteNotificationInteractor: DeleteNotificationInteractor,
+  private val getConfigInteractor: GetConfigInteractor,
   private val deleteConfigInteractor: DeleteConfigInteractor,
+  private val storeRealTime: StoreRealTime,
 ) : InternalStoreDirector {
 
+  init {
+    startRealTimeConnection()
+  }
+
   private val stores: MutableList<NotificationStore> = mutableListOf()
+
+  private fun startRealTimeConnection() {
+    CoroutineScope(coroutineContext).launch {
+      runCatching {
+        val config = getConfigInteractor(false, userQuery)
+        storeRealTime.startListening(config)
+      }.onFailure {
+        delay(30000)
+        startRealTimeConnection()
+      }
+    }
+  }
 
   override fun with(predicate: StorePredicate): NotificationStore {
     return stores.firstOrNull { it.predicate.hashCode() == predicate.hashCode() }?.also { store ->
@@ -46,31 +71,34 @@ internal class PredicateStoreDirector(
     } ?: run {
       val store = NotificationStore(
         predicate,
+        coroutineContext,
         userQuery,
         fetchStorePageInteractor,
         actionNotificationInteractor,
         deleteNotificationInteractor
       )
 
+      storeRealTime.addObserver(store.realTimeObserver)
       stores.add(store)
+
       return store
     }
   }
-
-  // TODO: 16/1/22 create extensions for default store predicates
 
   override fun disposeWith(predicate: StorePredicate) {
     val notificationIndex = stores.indexOfFirst { it.predicate.hashCode() == predicate.hashCode() }
     if (notificationIndex != -1) {
       val store = stores[notificationIndex]
-      //TODO: Remove observer
+      storeRealTime.removeObserver(store.realTimeObserver)
       stores.removeAt(notificationIndex)
     }
   }
 
   override suspend fun logout() {
-//TODO: Remove observers
+    stores.forEach { storeRealTime.removeObserver(it.realTimeObserver) }
+    stores.clear()
     deleteConfigInteractor(userQuery)
+    storeRealTime.stopListening()
   }
 }
 

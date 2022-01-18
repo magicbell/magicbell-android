@@ -14,16 +14,22 @@ import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Actio
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.UNARCHIVE
 import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInteractor
 import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationInteractor
+import com.magicbell.sdk.feature.realtime.StoreRealTimeNotificationChange
+import com.magicbell.sdk.feature.realtime.StoreRealTimeObserver
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.util.Date
 import java.util.Hashtable
 import java.util.WeakHashMap
+import kotlin.coroutines.CoroutineContext
 
 /**
  * The NotificationStore class represents a collection of MagicBell notifications.
  */
 class NotificationStore internal constructor(
   val predicate: StorePredicate,
+  private val coroutineContext: CoroutineContext,
   private val userQuery: UserQuery,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
@@ -34,20 +40,77 @@ class NotificationStore internal constructor(
     return edges[index].node
   }
 
+  internal val realTimeObserver = object : StoreRealTimeObserver {
+    override fun notifyNewNotification(id: String) {
+      refreshAndNotifyObservers()
+    }
+
+    override fun notifyDeleteNotification(id: String) {
+      val notificationIndex = edges.indexOfFirst { it.node.id == id }
+      if (notificationIndex != -1) {
+        updateCountersWhenDelete(edges[notificationIndex].node, predicate)
+        edges.removeAt(notificationIndex)
+        forEachContentObserver { it.onNotificationsDeleted(listOf(notificationIndex)) }
+      }
+    }
+
+    override fun notifyNotificationChange(id: String, change: StoreRealTimeNotificationChange) {
+      val notificationIndex = edges.indexOfFirst { it.node.id == id }
+      if (notificationIndex != -1) {
+        val notification = edges[notificationIndex].node
+        when (change) {
+          StoreRealTimeNotificationChange.READ -> markNotificationAsRead(notification, predicate)
+          StoreRealTimeNotificationChange.UNREAD -> markNotificationAsUnread(notification, predicate)
+          StoreRealTimeNotificationChange.ARCHIVED -> archiveNotification(notification, predicate)
+        }
+        if (predicate.match(notification)) {
+          edges[notificationIndex].node = notification
+          forEachContentObserver { it.onNotificationsChanged(listOf(notificationIndex)) }
+        } else {
+          edges.removeAt(notificationIndex)
+          forEachContentObserver { it.onNotificationsDeleted(listOf(notificationIndex)) }
+        }
+      } else {
+        refreshAndNotifyObservers()
+      }
+    }
+
+    override fun notifyAllNotificationRead() {
+      if (predicate.read == null || predicate.read == true) {
+        refreshAndNotifyObservers()
+      } else {
+        clear(true)
+      }
+    }
+
+    override fun notifyAllNotificationSeen() {
+      if (predicate.seen == null || predicate.seen == true) {
+        refreshAndNotifyObservers()
+      } else {
+        clear(true)
+      }
+    }
+
+    override fun notifyReloadStore() {
+      refreshAndNotifyObservers()
+    }
+  }
+
+  private fun refreshAndNotifyObservers() {
+    CoroutineScope(coroutineContext).launch {
+      refresh()
+    }
+  }
+
   private val pageSize = 20
 
   private val edges: MutableList<Edge<Notification>> = mutableListOf()
 
-  var totalCount: Int = 0
-    private set
-  var unreadCount: Int = 0
-    private set
-  var unseenCount: Int = 0
-    private set
+  private var totalCount: Int = 0
+  private var unreadCount: Int = 0
+  private var unseenCount: Int = 0
 
-  var hasNextPage: Boolean = true
-    private set
-
+  private var hasNextPage: Boolean = true
   private var nextPageCursor: String? = null
 
   private val contentObservers = Hashtable<NotificationStoreContentObserver, NotificationStoreContentObserver>()
