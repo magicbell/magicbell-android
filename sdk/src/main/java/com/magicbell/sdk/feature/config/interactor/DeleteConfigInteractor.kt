@@ -6,8 +6,7 @@ import com.magicbell.sdk.common.query.UserQuery
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-// TODO: Internal
-class DeleteConfigInteractor(
+internal class DeleteConfigInteractor(
   private val coroutineContext: CoroutineContext,
   private val getConfigInteractor: DeleteInteractor,
 ) {

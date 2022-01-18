@@ -35,7 +35,7 @@ internal class PredicateStoreDirector(
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
   private val deleteNotificationInteractor: DeleteNotificationInteractor,
-  private val deleteConfigInteractor: DeleteConfigInteractor
+  private val deleteConfigInteractor: DeleteConfigInteractor,
 ) : InternalStoreDirector {
 
   private val stores: MutableList<NotificationStore> = mutableListOf()
@@ -72,4 +72,43 @@ internal class PredicateStoreDirector(
 //TODO: Remove observers
     deleteConfigInteractor(userQuery)
   }
+}
+
+/**
+ * Returns the store for all notifications
+ */
+fun StoreDirector.forAll(): NotificationStore {
+  return with(StorePredicate())
+}
+
+/**
+ * Returns the store for unread notifications
+ */
+fun StoreDirector.forUnread(): NotificationStore {
+  return with(StorePredicate(read = false))
+}
+
+/**
+ * Returns the store for read notifications
+ */
+fun StoreDirector.forRead(): NotificationStore {
+  return with(StorePredicate(read = true))
+}
+
+/**
+ * Return the store for notifications with the given categories
+ *
+ * @param categories The list of categories
+ */
+fun StoreDirector.forCategories(categories: List<String>): NotificationStore {
+  return with(StorePredicate(categories = categories))
+}
+
+/**
+ * Return the store for notifications with the given topics
+ *
+ * @param topics The list of topics
+ */
+fun StoreDirector.forTopics(topics: List<String>): NotificationStore {
+  return with(StorePredicate(topics = topics))
 }

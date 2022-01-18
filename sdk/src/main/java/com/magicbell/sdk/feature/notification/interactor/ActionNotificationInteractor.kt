@@ -6,7 +6,7 @@ import com.magicbell.sdk.feature.notification.data.NotificationActionQuery
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class ActionNotificationInteractor(
+internal class ActionNotificationInteractor(
   private val coroutineContext: CoroutineContext,
   private val actionInteractor: PutInteractor<Unit>,
 ) {

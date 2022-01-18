@@ -2,8 +2,7 @@ package com.magicbell.sdk.common.query
 
 import com.harmony.kotlin.data.query.KeyQuery
 
-// TODO: Do internal when interactors are internal
-class UserQuery private constructor(
+internal class UserQuery private constructor(
   val externalId: String? = null,
   val email: String? = null,
   key: String,

@@ -8,8 +8,7 @@ import com.magicbell.sdk.feature.config.Config
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-// TODO: 14/1/22 Internal
-class GetConfigInteractor(
+internal class GetConfigInteractor(
   private val coroutineContext: CoroutineContext,
   private val getConfigInteractor: GetInteractor<Config>,
 ) {
