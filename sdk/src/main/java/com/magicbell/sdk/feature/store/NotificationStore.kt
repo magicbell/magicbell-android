@@ -20,7 +20,6 @@ import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
-import java.util.Hashtable
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -113,7 +112,7 @@ class NotificationStore internal constructor(
   private var hasNextPage: Boolean = true
   private var nextPageCursor: String? = null
 
-  private val contentObservers = Hashtable<NotificationStoreContentObserver, NotificationStoreContentObserver>()
+  private val contentObservers = WeakHashMap<NotificationStoreContentObserver, NotificationStoreContentObserver>()
   private val countObservers = WeakHashMap<NotificationStoreCountObserver, NotificationStoreCountObserver>()
 
   private fun setTotalCount(value: Int, notifyObservers: Boolean) {
