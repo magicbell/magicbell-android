@@ -16,7 +16,6 @@ import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInter
 import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationInteractor
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import java.util.Date
-import java.util.Hashtable
 import java.util.WeakHashMap
 
 /**
@@ -50,7 +49,7 @@ class NotificationStore internal constructor(
 
   private var nextPageCursor: String? = null
 
-  private val contentObservers = Hashtable<NotificationStoreContentObserver, NotificationStoreContentObserver>()
+  private val contentObservers = WeakHashMap<NotificationStoreContentObserver, NotificationStoreContentObserver>()
   private val countObservers = WeakHashMap<NotificationStoreCountObserver, NotificationStoreCountObserver>()
 
   private fun setTotalCount(value: Int, notifyObservers: Boolean) {
