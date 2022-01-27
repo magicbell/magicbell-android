@@ -6,7 +6,7 @@ import com.magicbell.sdk.feature.userpreferences.UserPreferences
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class GetUserPreferencesInteractor(
+internal class GetUserPreferencesInteractor(
   private val coroutineContext: CoroutineContext,
   private val getUserPreferencesInteractor: GetInteractor<UserPreferences>,
 ) {

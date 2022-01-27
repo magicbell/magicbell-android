@@ -6,7 +6,7 @@ import com.magicbell.sdk.feature.userpreferences.UserPreferences
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class UpdateUserPreferencesInteractor(
+internal class UpdateUserPreferencesInteractor(
   private val coroutineContext: CoroutineContext,
   private val saveUserPreferencesInteractor: PutInteractor<UserPreferences>,
 ) {

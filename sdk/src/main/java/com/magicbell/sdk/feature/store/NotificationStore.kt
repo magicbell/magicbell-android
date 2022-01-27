@@ -16,8 +16,8 @@ import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInter
 import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationInteractor
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import java.util.Date
+import java.util.WeakHashMap
 
-// TODO: Methods for collection
 /**
  * The NotificationStore class represents a collection of MagicBell notifications.
  */
@@ -27,7 +27,12 @@ class NotificationStore internal constructor(
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
   private val deleteNotificationInteractor: DeleteNotificationInteractor,
-) {
+) : Collection<Notification> {
+
+  operator fun get(index: Int): Notification {
+    return edges[index].node
+  }
+
   private val pageSize = 20
 
   private val edges: MutableList<Edge<Notification>> = mutableListOf()
@@ -44,6 +49,111 @@ class NotificationStore internal constructor(
 
   private var nextPageCursor: String? = null
 
+  private val contentObservers = WeakHashMap<NotificationStoreContentObserver, NotificationStoreContentObserver>()
+  private val countObservers = WeakHashMap<NotificationStoreCountObserver, NotificationStoreCountObserver>()
+
+  private fun setTotalCount(value: Int, notifyObservers: Boolean) {
+    val oldValue = totalCount
+    totalCount = value
+    if (oldValue != totalCount && notifyObservers) {
+      forEachCountObserver { it.onTotalCountChanged(totalCount) }
+    }
+  }
+
+  private fun setUnreadCount(value: Int, notifyObservers: Boolean) {
+    val oldValue = unreadCount
+    unreadCount = value
+    if (oldValue != unreadCount && notifyObservers) {
+      forEachCountObserver { it.onUnreadCountChanged(unreadCount) }
+    }
+  }
+
+  private fun setUnseenCount(value: Int, notifyObservers: Boolean) {
+    val oldValue = unseenCount
+    unseenCount = value
+    if (oldValue != unseenCount && notifyObservers) {
+      forEachCountObserver { it.onUnseenCountChanged(unseenCount) }
+    }
+  }
+
+  private fun setHasNextPage(value: Boolean) {
+    val oldValue = hasNextPage
+    hasNextPage = value
+    if (oldValue != hasNextPage) {
+      forEachContentObserver { it.onStoreHasNextPageChanged(hasNextPage) }
+    }
+  }
+
+  /**
+   * Number of notifications loaded in the store
+   */
+  val count: Int = edges.count()
+
+  /**
+   * Returns a list containing all notifications
+   */
+  val notifications = edges.map { it.node }
+
+  override val size: Int = edges.count()
+
+  override fun contains(element: Notification): Boolean = notifications.contains(element)
+
+  override fun containsAll(elements: Collection<Notification>): Boolean = notifications.containsAll(elements)
+
+  override fun isEmpty(): Boolean = notifications.isEmpty()
+
+  override fun iterator(): Iterator<Notification> = notifications.iterator()
+
+  //region Observers
+  /**
+   * Adds a content observer.
+   *
+   * @param observer The observer
+   */
+  fun addContentObserver(observer: NotificationStoreContentObserver) {
+    contentObservers[observer] = observer
+  }
+
+  /**
+   * Removes a content observer.
+   *
+   * @param observer The observer
+   */
+  fun removeContentObserver(observer: NotificationStoreContentObserver) {
+    contentObservers.remove(observer)
+  }
+
+  /**
+   * Adds a count observer.
+   *
+   * @param observer The observer
+   */
+  fun addCountObserver(observer: NotificationStoreCountObserver) {
+    countObservers[observer] = observer
+  }
+
+  /**
+   * Removes a count observer.
+   *
+   * @param observer The observer
+   */
+  fun removeCountObserver(observer: NotificationStoreCountObserver) {
+    countObservers.remove(observer)
+  }
+
+  private fun forEachContentObserver(action: (NotificationStoreContentObserver) -> Unit) {
+    contentObservers.values.forEach { observer ->
+      action(observer)
+    }
+  }
+
+  private fun forEachCountObserver(action: (NotificationStoreCountObserver) -> Unit) {
+    countObservers.values.forEach { observer ->
+      action(observer)
+    }
+  }
+  //endregion
+
   /**
    * Clears the store and fetches first page.
    *
@@ -53,13 +163,13 @@ class NotificationStore internal constructor(
     return runCatching {
       val cursorPredicate = CursorPredicate(size = pageSize)
       val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
-      clear()
+      clear(false)
       configurePagination(storePage)
       configureCount(storePage)
       val newEdges = storePage.edges
       edges.addAll(newEdges)
       val notifications = newEdges.map { it.node }
-      // TODO: notify changes
+      forEachContentObserver { it.onStoreReloaded() }
       notifications
     }
   }
@@ -88,7 +198,8 @@ class NotificationStore internal constructor(
       val oldCount = edges.count()
       val newEdges = storePage.edges
       val notifications = newEdges.map { it.node }
-      //TODO: Notify observers
+      val indexes = oldCount until edges.size
+      forEachContentObserver { it.onNotificationsInserted(indexes.toList()) }
       notifications
     }
   }
@@ -106,7 +217,7 @@ class NotificationStore internal constructor(
       if (notificationIndex != -1) {
         updateCountersWhenDelete(edges[notificationIndex].node, predicate)
         edges.removeAt(notificationIndex)
-        //TODO: Notify
+        forEachContentObserver { it.onNotificationsDeleted(listOf(notificationIndex)) }
       }
     }
   }
@@ -215,14 +326,19 @@ class NotificationStore internal constructor(
   }
 
   //region Private methods
-  private fun clear() {
+  //region NotificationActions
+  private fun clear(notifyChanges: Boolean) {
+    val notificationCount = count
     edges.clear()
-    totalCount = 0
-    unreadCount = 0
-    unseenCount = 0
+    setTotalCount(0, notifyChanges)
+    setUnreadCount(0, notifyChanges)
+    setUnseenCount(0, notifyChanges)
     nextPageCursor = null
-    hasNextPage = true
-    // TODO: Notify changes
+    setHasNextPage(true)
+    if (notifyChanges) {
+      val indexes = 0 until notificationCount
+      forEachContentObserver { it.onNotificationsDeleted(indexes.toList()) }
+    }
   }
 
   private suspend fun executeNotificationAction(
@@ -268,17 +384,17 @@ class NotificationStore internal constructor(
 
   private fun markNotificationAsRead(notification: Notification, storePredicate: StorePredicate) {
     if (notification.seenAt == null) {
-      unseenCount - 1
+      setUnseenCount(unseenCount - 1, true)
     }
 
     if (notification.readAt == null) {
-      unreadCount -= 1
+      setUnreadCount(unreadCount - 1, true)
 
       storePredicate.read?.also { isRead ->
         if (isRead) {
-          totalCount -= 1
+          setTotalCount(totalCount - 1, true)
         } else {
-          totalCount -= 1
+          setTotalCount(totalCount - 1, true)
         }
       }
     }
@@ -291,14 +407,14 @@ class NotificationStore internal constructor(
   private fun markNotificationAsUnread(notification: Notification, storePredicate: StorePredicate) {
     storePredicate.read?.also {
       if (it) {
-        totalCount -= 1
-        unreadCount = 0
+        setTotalCount(totalCount - 1, true)
+        setUnreadCount(0, true)
       } else {
-        totalCount += 1
-        unreadCount += 1
+        setTotalCount(totalCount + 1, true)
+        setUnreadCount(unreadCount + 1, true)
       }
     } ?: run {
-      unreadCount + 1
+      setUnreadCount(unreadCount + 1, true)
     }
 
     notification.readAt = null
@@ -310,24 +426,27 @@ class NotificationStore internal constructor(
     }
 
     if (notification.seenAt == null) {
-      unseenCount -= 1
+      setUnseenCount(unseenCount - 1, true)
     }
 
     if (notification.readAt == null) {
-      unreadCount -= 1
+      setUnreadCount(unreadCount - 1, true)
     }
 
     if (notification.archivedAt == null) {
       if (!storePredicate.archived) {
-        totalCount -= 1
+        setTotalCount(totalCount - 1, true)
       }
     }
 
     notification.archivedAt = Date()
   }
 
+  //endregion
+
+  //region Counter methods
   private fun updateCountersWhenDelete(notification: Notification, predicate: StorePredicate) {
-    totalCount -= 1
+    setTotalCount(totalCount - 1, true)
 
     decreaseUnreadCountIfUnreadPredicate(predicate, notification)
     decreaseUnseenCountIfNotificationWasUnseen(notification)
@@ -336,18 +455,20 @@ class NotificationStore internal constructor(
   private fun decreaseUnreadCountIfUnreadPredicate(predicate: StorePredicate, notification: Notification) {
     if (predicate.read != null) {
       if (predicate.read == false) {
-        unreadCount -= 1
+        setUnreadCount(unreadCount - 1, true)
       }
     } else {
       notification.readAt.also {
-        unreadCount -= 1
+        setUnreadCount(unreadCount - 1, true)
       }
     }
   }
 
   private fun decreaseUnseenCountIfNotificationWasUnseen(notification: Notification) {
     notification.seenAt.also {
-      unseenCount -= 1
+      setUnseenCount(unseenCount - 1, true)
     }
   }
+  //endregion
+  //endregion
 }
