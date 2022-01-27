@@ -9,6 +9,7 @@ import com.magicbell.sdk.common.network.graphql.GraphQLResponse
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.config.ConfigComponent
 import com.magicbell.sdk.feature.notification.NotificationComponent
+import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
 import com.magicbell.sdk.feature.store.data.GraphQLRequestToGraphQLEntityMapper
 import com.magicbell.sdk.feature.store.data.GraphQLResponseToStorePageMapper
 import com.magicbell.sdk.feature.store.data.StoresGraphQLNetworkDataSource
@@ -27,6 +28,7 @@ internal class DefaultStoreModule(
   private val coroutineContext: CoroutineContext,
   private val context: Context,
   private val notificationComponent: NotificationComponent,
+  private val storeRealTimeComponent: StoreRealTimeComponent,
   private val configComponent: ConfigComponent,
 ) : StoreComponent {
 
@@ -50,12 +52,15 @@ internal class DefaultStoreModule(
   }
 
   override fun storeDirector(userQuery: UserQuery): InternalStoreDirector {
-    return PredicateStoreDirector(
+    return RealTimeByPredicateStoreDirector(
       userQuery,
+      coroutineContext,
       getFetchStorePageInteractor(),
       notificationComponent.getActionNotificationInteractor(),
       notificationComponent.getDeleteNotificationInteractor(),
-      configComponent.getDeleteConfigInteractor()
+      configComponent.getGetConfigInteractor(),
+      configComponent.getDeleteConfigInteractor(),
+      storeRealTimeComponent.createStoreRealTime(userQuery)
     )
   }
 }
