@@ -41,7 +41,10 @@ internal class DefaultSDKModule(
 ) : SDKComponent {
 
   private val json: Json by lazy {
-    Json { ignoreUnknownKeys = true }
+    Json {
+      ignoreUnknownKeys = true
+      explicitNulls = false
+    }
   }
 
   private val httpClient: HttpClient by lazy {

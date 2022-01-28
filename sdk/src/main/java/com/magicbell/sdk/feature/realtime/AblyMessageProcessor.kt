@@ -3,7 +3,6 @@ package com.magicbell.sdk.feature.realtime
 import com.google.gson.JsonObject
 import com.magicbell.sdk.common.error.MagicBellError
 import io.ably.lib.types.Message
-import org.json.JSONObject
 
 internal class AblyMessageProcessor {
 
@@ -20,10 +19,11 @@ internal class AblyMessageProcessor {
   fun processMessage(message: Message): RealTimeMessage {
     val event = message.name
     val eventData = message.data as JsonObject
-    val eventParts = event.split("/", limit = 1)
+    val eventParts = event.split("/", limit = 2)
 
     if (eventParts.isNotEmpty() && eventParts.size == 2 && eventParts[0] == "notifications") {
-      return obtainMessage(eventParts[1], eventData.getAsJsonPrimitive("id").asString)
+      val notificationId = if (eventData.has("id")) eventData.getAsJsonPrimitive("id").asString else null
+      return obtainMessage(eventParts[1], notificationId)
     } else {
       throw MagicBellError("Ably event cannot be handled")
     }

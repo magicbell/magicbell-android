@@ -5,8 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.magicbell.example.databinding.ActivityMainBinding
 import com.magicbell.sdk.MagicBellClient
 import com.magicbell.sdk.common.logger.LogLevel
-import com.magicbell.sdk.common.query.UserQuery
-import com.magicbell.sdk.feature.notification.data.NotificationActionQuery
 import com.magicbell.sdk.feature.store.StorePredicate
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

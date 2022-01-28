@@ -16,7 +16,7 @@ internal class NotificationNetworkDataSource(
     when (query) {
       is NotificationQuery -> {
         val request = httpClient.prepareRequest(
-          "/notifications/${query.notificationId}",
+          "notifications/${query.notificationId}",
           query.userQuery.externalId,
           query.userQuery.email
         )

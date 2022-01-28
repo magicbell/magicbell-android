@@ -18,9 +18,13 @@ import com.magicbell.sdk.feature.realtime.StoreRealTimeNotificationChange
 import com.magicbell.sdk.feature.realtime.StoreRealTimeObserver
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.WeakHashMap
+import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -33,10 +37,68 @@ class NotificationStore internal constructor(
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
   private val deleteNotificationInteractor: DeleteNotificationInteractor,
-) : Collection<Notification> {
+) : List<Notification> {
 
-  operator fun get(index: Int): Notification {
-    return edges[index].node
+  internal val realTimeObserver = object : StoreRealTimeObserver {
+    override fun notifyNewNotification(id: String) {
+      refreshAndNotifyObservers()
+    }
+
+    override fun notifyDeleteNotification(id: String) {
+      val notificationIndex = edges.indexOfFirst { it.node.id == id }
+      if (notificationIndex != -1) {
+        updateCountersWhenDelete(edges[notificationIndex].node, predicate)
+        edges.removeAt(notificationIndex)
+        forEachContentObserver { it.onNotificationsDeleted(listOf(notificationIndex)) }
+      }
+    }
+
+    override fun notifyNotificationChange(id: String, change: StoreRealTimeNotificationChange) {
+      val notificationIndex = edges.indexOfFirst { it.node.id == id }
+      if (notificationIndex != -1) {
+        val notification = edges[notificationIndex].node
+        when (change) {
+          StoreRealTimeNotificationChange.READ -> markNotificationAsRead(notification, predicate)
+          StoreRealTimeNotificationChange.UNREAD -> markNotificationAsUnread(notification, predicate)
+          StoreRealTimeNotificationChange.ARCHIVED -> archiveNotification(notification, predicate)
+        }
+        if (predicate.match(notification)) {
+          edges[notificationIndex].node = notification
+          forEachContentObserver { it.onNotificationsChanged(listOf(notificationIndex)) }
+        } else {
+          edges.removeAt(notificationIndex)
+          forEachContentObserver { it.onNotificationsDeleted(listOf(notificationIndex)) }
+        }
+      } else {
+        refreshAndNotifyObservers()
+      }
+    }
+
+    override fun notifyAllNotificationRead() {
+      if (predicate.read == null || predicate.read == true) {
+        refreshAndNotifyObservers()
+      } else {
+        clear(true)
+      }
+    }
+
+    override fun notifyAllNotificationSeen() {
+      if (predicate.seen == null || predicate.seen == true) {
+        refreshAndNotifyObservers()
+      } else {
+        clear(true)
+      }
+    }
+
+    override fun notifyReloadStore() {
+      refreshAndNotifyObservers()
+    }
+  }
+
+  private fun refreshAndNotifyObservers() {
+    CoroutineScope(coroutineContext).launch {
+      refresh()
+    }
   }
 
   internal val realTimeObserver = object : StoreRealTimeObserver {
@@ -105,11 +167,15 @@ class NotificationStore internal constructor(
 
   private val edges: MutableList<Edge<Notification>> = mutableListOf()
 
-  private var totalCount: Int = 0
-  private var unreadCount: Int = 0
-  private var unseenCount: Int = 0
+  var totalCount: Int = 0
+    private set
+  var unreadCount: Int = 0
+    private set
+  var unseenCount: Int = 0
+    private set
+  var hasNextPage: Boolean = true
+    private set
 
-  private var hasNextPage: Boolean = true
   private var nextPageCursor: String? = null
 
   private val contentObservers = WeakHashMap<NotificationStoreContentObserver, NotificationStoreContentObserver>()
@@ -155,17 +221,47 @@ class NotificationStore internal constructor(
   /**
    * Returns a list containing all notifications
    */
-  val notifications = edges.map { it.node }
+  private val notifications: List<Notification>
+    get() {
+      return edges.map {
+        it.node
+      }
+    }
 
-  override val size: Int = edges.count()
+  override val size: Int
+    get() {
+      return edges.size
+    }
 
-  override fun contains(element: Notification): Boolean = notifications.contains(element)
+  override fun get(index: Int): Notification {
+    return edges[index].node
+  }
+
+  override fun contains(element: Notification): Boolean {
+    return edges.firstOrNull { it.node.id == element.id } != null
+  }
 
   override fun containsAll(elements: Collection<Notification>): Boolean = notifications.containsAll(elements)
 
-  override fun isEmpty(): Boolean = notifications.isEmpty()
+  override fun isEmpty(): Boolean = edges.isEmpty()
 
   override fun iterator(): Iterator<Notification> = notifications.iterator()
+
+  override fun indexOf(element: Notification): Int {
+    return edges.indexOfFirst { it.node.id == element.id }
+  }
+
+  override fun lastIndexOf(element: Notification): Int {
+    return edges.indexOfLast { it.node.id == element.id }
+  }
+
+  override fun listIterator(): ListIterator<Notification> = notifications.listIterator()
+
+  override fun listIterator(index: Int): ListIterator<Notification> = notifications.listIterator(index)
+
+  override fun subList(fromIndex: Int, toIndex: Int): List<Notification> {
+    return edges.subList(fromIndex, toIndex).map { it.node }
+  }
 
   //region Observers
   /**
@@ -260,6 +356,7 @@ class NotificationStore internal constructor(
 
       val oldCount = edges.count()
       val newEdges = storePage.edges
+      edges.addAll(newEdges)
       val notifications = newEdges.map { it.node }
       val indexes = oldCount until edges.size
       forEachContentObserver { it.onNotificationsInserted(indexes.toList()) }
