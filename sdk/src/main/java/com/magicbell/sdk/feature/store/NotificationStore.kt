@@ -5,6 +5,7 @@ import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.network.graphql.CursorPredicate.Cursor.Next
 import com.magicbell.sdk.common.network.graphql.Edge
 import com.magicbell.sdk.common.query.UserQuery
+import com.magicbell.sdk.common.threading.MainThread
 import com.magicbell.sdk.feature.notification.Notification
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.ARCHIVE
@@ -18,13 +19,9 @@ import com.magicbell.sdk.feature.realtime.StoreRealTimeNotificationChange
 import com.magicbell.sdk.feature.realtime.StoreRealTimeObserver
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Date
 import java.util.WeakHashMap
-import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -32,7 +29,8 @@ import kotlin.coroutines.CoroutineContext
  */
 class NotificationStore internal constructor(
   val predicate: StorePredicate,
-  private val coroutineContext: CoroutineContext,
+  val coroutineContext: CoroutineContext,
+  val mainThread: MainThread,
   private val userQuery: UserQuery,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
@@ -239,14 +237,18 @@ class NotificationStore internal constructor(
   }
 
   private fun forEachContentObserver(action: (NotificationStoreContentObserver) -> Unit) {
-    contentObservers.values.forEach { observer ->
-      action(observer)
+    mainThread.post {
+      contentObservers.values.forEach { observer ->
+        action(observer)
+      }
     }
   }
 
   private fun forEachCountObserver(action: (NotificationStoreCountObserver) -> Unit) {
-    countObservers.values.forEach { observer ->
-      action(observer)
+    mainThread.post {
+      countObservers.values.forEach { observer ->
+        action(observer)
+      }
     }
   }
   //endregion

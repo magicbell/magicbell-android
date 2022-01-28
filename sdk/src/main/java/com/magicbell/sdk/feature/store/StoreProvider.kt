@@ -7,6 +7,7 @@ import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.network.graphql.GraphQLRequestEntity
 import com.magicbell.sdk.common.network.graphql.GraphQLResponse
 import com.magicbell.sdk.common.query.UserQuery
+import com.magicbell.sdk.common.threading.MainThread
 import com.magicbell.sdk.feature.config.ConfigComponent
 import com.magicbell.sdk.feature.notification.NotificationComponent
 import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
@@ -26,6 +27,7 @@ internal class DefaultStoreModule(
   private val httpClient: HttpClient,
   private val json: Json,
   private val coroutineContext: CoroutineContext,
+  private val mainThread: MainThread,
   private val context: Context,
   private val notificationComponent: NotificationComponent,
   private val storeRealTimeComponent: StoreRealTimeComponent,
@@ -55,6 +57,7 @@ internal class DefaultStoreModule(
     return RealTimeByPredicateStoreDirector(
       userQuery,
       coroutineContext,
+      mainThread,
       getFetchStorePageInteractor(),
       notificationComponent.getActionNotificationInteractor(),
       notificationComponent.getDeleteNotificationInteractor(),
