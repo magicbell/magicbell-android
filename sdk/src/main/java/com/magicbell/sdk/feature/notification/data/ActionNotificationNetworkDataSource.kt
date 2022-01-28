@@ -12,7 +12,7 @@ internal class ActionNotificationNetworkDataSource(
   override suspend fun put(query: Query, value: Unit?) {
     when (query) {
       is NotificationActionQuery -> {
-        var path = "/notifications"
+        var path = "notifications"
         var httpMethod = "POST"
         when (query.action) {
           NotificationActionQuery.Action.MARK_AS_READ -> {
@@ -51,7 +51,7 @@ internal class ActionNotificationNetworkDataSource(
     when (query) {
       is NotificationQuery -> {
         val request = httpClient.prepareRequest(
-          "/notifications/${query.notificationId}",
+          "notifications/${query.notificationId}",
           query.userQuery.externalId,
           query.userQuery.email,
           "DELETE"

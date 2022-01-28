@@ -17,7 +17,7 @@ internal data class NotificationEntity(val notification: Notification)
 data class Notification(
   val id: String,
   val title: String,
-  val content: String? = null,
+  val content: String?,
   @SerialName("action_url")
   val actionURL: String? = null,
   val category: String? = null,
@@ -42,9 +42,18 @@ data class Notification(
   @JsonNames("archived_at")
   var archivedAt: Date? = null,
 ) {
-  var isRead: Boolean = readAt != null
-  var isSeen: Boolean = seenAt != null
-  var isArchived: Boolean = archivedAt != null
+  val isRead: Boolean
+    get() {
+      return readAt != null
+    }
+  val isSeen: Boolean
+    get() {
+      return seenAt != null
+    }
+  val isArchived: Boolean
+    get() {
+      return archivedAt != null
+    }
 }
 
 @Serializable

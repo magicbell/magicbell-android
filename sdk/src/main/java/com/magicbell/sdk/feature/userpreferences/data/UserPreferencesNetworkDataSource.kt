@@ -18,7 +18,7 @@ internal class UserPreferencesNetworkDataSource(
   override suspend fun get(query: Query): UserPreferencesEntity {
     return when (query) {
       is UserQuery -> {
-        val request = httpClient.prepareRequest("/notification_preferences",
+        val request = httpClient.prepareRequest("notification_preferences",
           query.externalId,
           query.email)
 

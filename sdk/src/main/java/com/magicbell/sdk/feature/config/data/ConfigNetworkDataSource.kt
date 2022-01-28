@@ -17,7 +17,7 @@ internal class ConfigNetworkDataSource(
   override suspend fun get(query: Query): Config {
     when (query) {
       is UserQuery -> {
-        val request = httpClient.prepareRequest("/config",
+        val request = httpClient.prepareRequest("config",
           query.externalId,
           query.email
         )
