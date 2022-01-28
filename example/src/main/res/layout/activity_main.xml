@@ -9,39 +9,26 @@
   <com.google.android.material.appbar.AppBarLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:theme="@style/Widget.AppCompat.ActionBar">
+    android:theme="@style/Widget.Material3.ActionBar.Solid">
 
     <androidx.appcompat.widget.Toolbar
       android:id="@+id/toolbar"
       android:layout_width="match_parent"
       android:layout_height="?attr/actionBarSize"
-      android:background="?attr/colorPrimary"
-      app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+      android:background="@color/primaryColor"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:subtitleTextColor="@color/primaryTextColor"
+      app:titleTextColor="@color/primaryTextColor" />
 
   </com.google.android.material.appbar.AppBarLayout>
 
-  <androidx.constraintlayout.widget.ConstraintLayout
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/notification_rv"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <TextView
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="Hello MagicBell"
-
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="parent" />
-  </androidx.constraintlayout.widget.ConstraintLayout>
-
-  <com.google.android.material.floatingactionbutton.FloatingActionButton
-    android:id="@+id/fab"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom|end"
-    android:layout_marginEnd="16dp"
-    android:layout_marginBottom="16dp"
-    app:srcCompat="@android:drawable/ic_dialog_email" />
+  <include layout="@layout/notification_actions_sheet" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
