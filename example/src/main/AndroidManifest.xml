@@ -13,7 +13,7 @@
     android:supportsRtl="true"
     android:theme="@style/Theme.Example">
     <activity
-      android:name=".MainActivity"
+      android:name=".MainActivityCompose"
       android:exported="true"
       android:theme="@style/Theme.MaterialComponents.Light.NoActionBar">
       <intent-filter>

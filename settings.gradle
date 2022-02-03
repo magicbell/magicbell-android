@@ -9,3 +9,4 @@ dependencyResolutionManagement {
 rootProject.name = "Example"
 include ':example'
 include ':sdk'
+include ':sdk-compose'

@@ -19,7 +19,9 @@ import com.magicbell.sdk.feature.realtime.StoreRealTimeNotificationChange
 import com.magicbell.sdk.feature.realtime.StoreRealTimeObserver
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 import java.util.WeakHashMap
 import kotlin.coroutines.CoroutineContext
@@ -29,8 +31,8 @@ import kotlin.coroutines.CoroutineContext
  */
 class NotificationStore internal constructor(
   val predicate: StorePredicate,
-  val coroutineContext: CoroutineContext,
-  val mainThread: MainThread,
+  private val coroutineContext: CoroutineContext,
+  private val mainThread: MainThread,
   private val userQuery: UserQuery,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
@@ -94,7 +96,7 @@ class NotificationStore internal constructor(
   }
 
   private fun refreshAndNotifyObservers() {
-    CoroutineScope(coroutineContext).launch {
+    CoroutineScope(Dispatchers.Main).launch {
       refresh()
     }
   }
@@ -157,7 +159,7 @@ class NotificationStore internal constructor(
   /**
    * Returns a list containing all notifications
    */
-  private val notifications: List<Notification>
+  val notifications: List<Notification>
     get() {
       return edges.map {
         it.node
@@ -260,16 +262,18 @@ class NotificationStore internal constructor(
    */
   suspend fun refresh(): Result<List<Notification>> {
     return runCatching {
-      val cursorPredicate = CursorPredicate(size = pageSize)
-      val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
-      clear(false)
-      configurePagination(storePage)
-      configureCount(storePage)
-      val newEdges = storePage.edges
-      edges.addAll(newEdges)
-      val notifications = newEdges.map { it.node }
-      forEachContentObserver { it.onStoreReloaded() }
-      notifications
+      runBlocking {
+        val cursorPredicate = CursorPredicate(size = pageSize)
+        val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
+        clear(false)
+        configurePagination(storePage)
+        configureCount(storePage)
+        val newEdges = storePage.edges
+        edges.addAll(newEdges)
+        val notifications = newEdges.map { it.node }
+        forEachContentObserver { it.onStoreReloaded() }
+        notifications
+      }
     }
   }
 
@@ -281,26 +285,28 @@ class NotificationStore internal constructor(
    */
   suspend fun fetch(): Result<List<Notification>> {
     return runCatching {
-      if (!hasNextPage) {
-        listOf<Notification>()
-      }
-      val cursorPredicate: CursorPredicate = nextPageCursor?.let { after ->
-        CursorPredicate(Next(after), pageSize)
-      } ?: run {
-        CursorPredicate(size = pageSize)
-      }
+      runBlocking {
+        if (!hasNextPage) {
+          return@runBlocking listOf<Notification>()
+        }
+        val cursorPredicate: CursorPredicate = nextPageCursor?.let { after ->
+          CursorPredicate(Next(after), pageSize)
+        } ?: run {
+          CursorPredicate(size = pageSize)
+        }
 
-      val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
-      configurePagination(storePage)
-      configureCount(storePage)
+        val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
+        configurePagination(storePage)
+        configureCount(storePage)
 
-      val oldCount = edges.count()
-      val newEdges = storePage.edges
-      edges.addAll(newEdges)
-      val notifications = newEdges.map { it.node }
-      val indexes = oldCount until edges.size
-      forEachContentObserver { it.onNotificationsInserted(indexes.toList()) }
-      notifications
+        val oldCount = edges.count()
+        val newEdges = storePage.edges
+        edges.addAll(newEdges)
+        val notifications = newEdges.map { it.node }
+        val indexes = oldCount until edges.size
+        forEachContentObserver { it.onNotificationsInserted(indexes.toList()) }
+        notifications
+      }
     }
   }
 

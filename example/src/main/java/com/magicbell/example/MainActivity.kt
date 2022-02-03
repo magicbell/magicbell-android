@@ -122,7 +122,6 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
       }
       R.id.customize_predicate -> {
         val colors = arrayOf("All", "Read", "Unread", "Archived")
-
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Change predicate")
         builder.setItems(colors) { dialog, which ->
