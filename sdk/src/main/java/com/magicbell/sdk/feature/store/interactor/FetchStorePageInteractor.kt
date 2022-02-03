@@ -7,12 +7,20 @@ import com.magicbell.sdk.feature.store.StorePredicate
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-internal class FetchStorePageInteractor(
+internal interface FetchStorePageInteractor {
+  suspend operator fun invoke(
+    storePredicate: StorePredicate,
+    cursorPredicate: CursorPredicate,
+    userQuery: UserQuery,
+  ): StorePage
+}
+
+internal class FetchStorePageDefaultInteractor(
   private val coroutineContext: CoroutineContext,
   private val getStorePagesInteractor: GetStorePagesInteractor,
-) {
+) : FetchStorePageInteractor {
 
-  suspend operator fun invoke(
+  override suspend operator fun invoke(
     storePredicate: StorePredicate,
     cursorPredicate: CursorPredicate,
     userQuery: UserQuery,
