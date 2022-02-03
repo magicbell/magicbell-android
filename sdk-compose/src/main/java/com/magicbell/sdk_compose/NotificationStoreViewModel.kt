@@ -9,13 +9,6 @@ import com.magicbell.sdk.feature.store.NotificationStoreContentObserver
 import com.magicbell.sdk.feature.store.NotificationStoreCountObserver
 import com.magicbell.sdk.feature.store.refresh
 
-data class NotificationStoreState(
-  var totalCount: Int = 0,
-  var unreadCount: Int = 0,
-  var unseenCount: Int = 0,
-  var hasNextPage: Boolean = true,
-  var notifications: List<Notification> = listOf(),
-)
 
 class NotificationStoreViewModel(
   private val notificationStore: NotificationStore,

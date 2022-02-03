@@ -144,7 +144,6 @@ class MagicBellClient(
     return user
   }
 
-
   private fun removeUser(userQuery: UserQuery) {
     users[userQuery.key]?.also { user ->
       CoroutineScope(Dispatchers.IO).launch {
