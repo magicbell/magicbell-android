@@ -6,12 +6,16 @@ import com.magicbell.sdk.feature.notification.data.NotificationQuery
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-internal class DeleteNotificationInteractor(
+internal interface DeleteNotificationInteractor {
+  suspend operator fun invoke(notificationId: String, userQuery: UserQuery)
+}
+
+internal class DeleteNotificationDefaultInteractor(
   private val coroutineContext: CoroutineContext,
   private val deleteNotificationInteractor: DeleteInteractor,
-) {
+) : DeleteNotificationInteractor {
 
-  suspend operator fun invoke(notificationId: String, userQuery: UserQuery) {
+  override suspend operator fun invoke(notificationId: String, userQuery: UserQuery) {
     return withContext(coroutineContext) {
       val query = NotificationQuery(notificationId, userQuery)
       deleteNotificationInteractor.invoke(query)

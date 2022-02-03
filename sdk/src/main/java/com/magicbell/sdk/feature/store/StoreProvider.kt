@@ -14,6 +14,7 @@ import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
 import com.magicbell.sdk.feature.store.data.GraphQLRequestToGraphQLEntityMapper
 import com.magicbell.sdk.feature.store.data.GraphQLResponseToStorePageMapper
 import com.magicbell.sdk.feature.store.data.StoresGraphQLNetworkDataSource
+import com.magicbell.sdk.feature.store.interactor.FetchStorePageDefaultInteractor
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import com.magicbell.sdk.feature.store.interactor.GetStorePagesInteractor
 import kotlinx.serialization.json.Json
@@ -50,7 +51,7 @@ internal class DefaultStoreModule(
   }
 
   private fun getFetchStorePageInteractor(): FetchStorePageInteractor {
-    return FetchStorePageInteractor(coroutineContext, getStorePagesInteractor())
+    return FetchStorePageDefaultInteractor(coroutineContext, getStorePagesInteractor())
   }
 
   override fun storeDirector(userQuery: UserQuery): InternalStoreDirector {

@@ -1,5 +1,6 @@
 package com.magicbell.sdk.feature.store
 
+import androidx.annotation.VisibleForTesting
 import com.magicbell.sdk.common.error.MagicBellError
 import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.network.graphql.CursorPredicate.Cursor.Next
@@ -10,6 +11,7 @@ import com.magicbell.sdk.feature.notification.Notification
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.ARCHIVE
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_ALL_AS_READ
+import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_ALL_AS_SEEN
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_AS_READ
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_AS_UNREAD
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.UNARCHIVE
@@ -116,7 +118,9 @@ class NotificationStore internal constructor(
 
   private var nextPageCursor: String? = null
 
+  @VisibleForTesting
   private val contentObservers = WeakHashMap<NotificationStoreContentObserver, NotificationStoreContentObserver>()
+  @VisibleForTesting
   private val countObservers = WeakHashMap<NotificationStoreCountObserver, NotificationStoreCountObserver>()
 
   private fun setTotalCount(value: Int, notifyObservers: Boolean) {
@@ -407,8 +411,7 @@ class NotificationStore internal constructor(
         MARK_ALL_AS_READ,
         modifications = { notification ->
           markNotificationAsRead(notification, predicate)
-        }
-      )
+        }).getOrThrow()
     }
   }
 
@@ -420,21 +423,20 @@ class NotificationStore internal constructor(
   suspend fun markAllNotificationAsSeen(): Result<Unit> {
     return runCatching {
       executeAllNotificationsAction(
-        MARK_ALL_AS_READ,
+        MARK_ALL_AS_SEEN,
         modifications = { notification ->
           if (notification.seenAt == null) {
             notification.seenAt = Date()
             unseenCount -= 1
           }
-        }
-      )
+        }).getOrThrow()
     }
   }
 
   //region Private methods
   //region NotificationActions
   private fun clear(notifyChanges: Boolean) {
-    val notificationCount = count
+    val notificationCount = size
     edges.clear()
     setTotalCount(0, notifyChanges)
     setUnreadCount(0, notifyChanges)
@@ -479,13 +481,13 @@ class NotificationStore internal constructor(
   private fun configurePagination(storePage: StorePage) {
     val pageInfo = storePage.pageInfo
     nextPageCursor = pageInfo.endCursor
-    hasNextPage = pageInfo.hasNextPage
+    setHasNextPage(pageInfo.hasNextPage)
   }
 
   private fun configureCount(storePage: StorePage) {
-    totalCount = storePage.totalCount
-    unreadCount = storePage.unreadCount
-    unseenCount = storePage.unseenCount
+    setTotalCount(storePage.totalCount, true)
+    setUnreadCount(storePage.unreadCount, true)
+    setUnseenCount(storePage.unseenCount, true)
   }
 
   private fun markNotificationAsRead(notification: Notification, storePredicate: StorePredicate) {
@@ -511,16 +513,18 @@ class NotificationStore internal constructor(
   }
 
   private fun markNotificationAsUnread(notification: Notification, storePredicate: StorePredicate) {
-    storePredicate.read?.also {
-      if (it) {
-        setTotalCount(totalCount - 1, true)
-        setUnreadCount(0, true)
-      } else {
-        setTotalCount(totalCount + 1, true)
+    if (notification.readAt != null) {
+      storePredicate.read?.also {
+        if (it) {
+          setTotalCount(totalCount - 1, true)
+          setUnreadCount(0, true)
+        } else {
+          setTotalCount(totalCount + 1, true)
+          setUnreadCount(unreadCount + 1, true)
+        }
+      } ?: run {
         setUnreadCount(unreadCount + 1, true)
       }
-    } ?: run {
-      setUnreadCount(unreadCount + 1, true)
     }
 
     notification.readAt = null
@@ -571,7 +575,7 @@ class NotificationStore internal constructor(
   }
 
   private fun decreaseUnseenCountIfNotificationWasUnseen(notification: Notification) {
-    notification.seenAt.also {
+    if (notification.seenAt == null) {
       setUnseenCount(unseenCount - 1, true)
     }
   }
