@@ -101,68 +101,6 @@ class NotificationStore internal constructor(
     }
   }
 
-  internal val realTimeObserver = object : StoreRealTimeObserver {
-    override fun notifyNewNotification(id: String) {
-      refreshAndNotifyObservers()
-    }
-
-    override fun notifyDeleteNotification(id: String) {
-      val notificationIndex = edges.indexOfFirst { it.node.id == id }
-      if (notificationIndex != -1) {
-        updateCountersWhenDelete(edges[notificationIndex].node, predicate)
-        edges.removeAt(notificationIndex)
-        forEachContentObserver { it.onNotificationsDeleted(listOf(notificationIndex)) }
-      }
-    }
-
-    override fun notifyNotificationChange(id: String, change: StoreRealTimeNotificationChange) {
-      val notificationIndex = edges.indexOfFirst { it.node.id == id }
-      if (notificationIndex != -1) {
-        val notification = edges[notificationIndex].node
-        when (change) {
-          StoreRealTimeNotificationChange.READ -> markNotificationAsRead(notification, predicate)
-          StoreRealTimeNotificationChange.UNREAD -> markNotificationAsUnread(notification, predicate)
-          StoreRealTimeNotificationChange.ARCHIVED -> archiveNotification(notification, predicate)
-        }
-        if (predicate.match(notification)) {
-          edges[notificationIndex].node = notification
-          forEachContentObserver { it.onNotificationsChanged(listOf(notificationIndex)) }
-        } else {
-          edges.removeAt(notificationIndex)
-          forEachContentObserver { it.onNotificationsDeleted(listOf(notificationIndex)) }
-        }
-      } else {
-        refreshAndNotifyObservers()
-      }
-    }
-
-    override fun notifyAllNotificationRead() {
-      if (predicate.read == null || predicate.read == true) {
-        refreshAndNotifyObservers()
-      } else {
-        clear(true)
-      }
-    }
-
-    override fun notifyAllNotificationSeen() {
-      if (predicate.seen == null || predicate.seen == true) {
-        refreshAndNotifyObservers()
-      } else {
-        clear(true)
-      }
-    }
-
-    override fun notifyReloadStore() {
-      refreshAndNotifyObservers()
-    }
-  }
-
-  private fun refreshAndNotifyObservers() {
-    CoroutineScope(coroutineContext).launch {
-      refresh()
-    }
-  }
-
   private val pageSize = 20
 
   private val edges: MutableList<Edge<Notification>> = mutableListOf()
@@ -372,7 +310,7 @@ class NotificationStore internal constructor(
    */
   suspend fun delete(notification: Notification): Result<Unit> {
     return runCatching {
-      deleteNotificationInteractor(notification.id, userQuery)
+      deleteNotificationInteractor(notification.id, userQuery).toString()
       val notificationIndex = edges.indexOfFirst { it.node.id == notification.id }
       if (notificationIndex != -1) {
         updateCountersWhenDelete(edges[notificationIndex].node, predicate)
