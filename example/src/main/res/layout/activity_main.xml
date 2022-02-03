@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  tools:context=".MainActivity">
+
+  <com.google.android.material.appbar.AppBarLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:theme="@style/Widget.Material3.ActionBar.Solid">
+
+    <androidx.appcompat.widget.Toolbar
+      android:id="@+id/toolbar"
+      android:layout_width="match_parent"
+      android:layout_height="?attr/actionBarSize"
+      android:background="@color/primaryColor"
+      android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:subtitleTextColor="@color/primaryTextColor"
+      app:titleTextColor="@color/primaryTextColor" />
+
+  </com.google.android.material.appbar.AppBarLayout>
+
+
+  <androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/notification_rv"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+  <include layout="@layout/notification_actions_sheet" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
