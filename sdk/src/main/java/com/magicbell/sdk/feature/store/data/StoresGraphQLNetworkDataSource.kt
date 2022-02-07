@@ -1,9 +1,9 @@
 package com.magicbell.sdk.feature.store.data
 
 import android.content.Context
-import com.harmony.kotlin.data.datasource.GetDataSource
-import com.harmony.kotlin.data.error.OperationNotAllowedException
-import com.harmony.kotlin.data.query.Query
+import com.mobilejazz.harmony.data.datasource.GetDataSource
+import com.mobilejazz.harmony.data.error.OperationNotAllowedException
+import com.mobilejazz.harmony.data.query.Query
 import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.network.graphql.GraphQLFragment
@@ -28,8 +28,8 @@ internal class StoresGraphQLNetworkDataSource(
         val request = httpClient.prepareRequest("graphql",
           query.userQuery.externalId,
           query.userQuery.email,
-          "POST",
-          inMapper.map(graphQLRequest))
+          HttpClient.HttpMethod.Post(inMapper.map(graphQLRequest))
+        )
 
         httpClient.performRequest(request)?.let {
           outMapper.map(it)

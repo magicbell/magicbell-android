@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.notification.data
 
-import com.harmony.kotlin.data.query.Query
+import com.mobilejazz.harmony.data.query.Query
 import com.magicbell.sdk.common.query.UserQuery
 
 

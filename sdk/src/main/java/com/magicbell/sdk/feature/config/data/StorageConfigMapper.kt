@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.config.data
 
-import com.harmony.kotlin.data.mapper.Mapper
+import com.mobilejazz.harmony.data.mapper.Mapper
 import com.magicbell.sdk.feature.config.Config
 import com.magicbell.sdk.feature.config.Ws
 

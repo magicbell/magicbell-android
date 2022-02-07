@@ -1,8 +1,8 @@
 package com.magicbell.sdk.feature.store
 
 import android.content.Context
-import com.harmony.kotlin.data.repository.SingleGetDataSourceRepository
-import com.harmony.kotlin.domain.interactor.toGetInteractor
+import com.mobilejazz.harmony.data.repository.SingleGetDataSourceRepository
+import com.mobilejazz.harmony.domain.interactor.toGetInteractor
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.network.graphql.GraphQLRequestEntity
 import com.magicbell.sdk.common.network.graphql.GraphQLResponse

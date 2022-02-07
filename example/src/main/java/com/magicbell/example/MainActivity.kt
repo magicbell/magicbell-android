@@ -71,8 +71,10 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     val recyclerView = binding.notificationRv
     val linearLayoutManager = LinearLayoutManager(this)
 
-    val dividerItemDecoration = DividerItemDecoration(recyclerView.context,
-      linearLayoutManager.orientation)
+    val dividerItemDecoration = DividerItemDecoration(
+      recyclerView.context,
+      linearLayoutManager.orientation
+    )
     recyclerView.addItemDecoration(dividerItemDecoration)
 
     recyclerView.layoutManager = linearLayoutManager
@@ -97,7 +99,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     store.addCountObserver(this)
   }
 
-  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+  override fun onCreateOptionsMenu(menu: Menu): Boolean {
     val menuInflater = menuInflater
     menuInflater.inflate(R.menu.notification_menu, menu)
     return true

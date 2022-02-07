@@ -1,8 +1,8 @@
 package com.magicbell.sdk.feature.config.interactor
 
-import com.harmony.kotlin.data.operation.CacheSyncOperation
-import com.harmony.kotlin.data.operation.MainSyncOperation
-import com.harmony.kotlin.domain.interactor.GetInteractor
+import com.mobilejazz.harmony.data.operation.CacheSyncOperation
+import com.mobilejazz.harmony.data.operation.MainSyncOperation
+import com.mobilejazz.harmony.domain.interactor.GetInteractor
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.config.Config
 import kotlinx.coroutines.withContext

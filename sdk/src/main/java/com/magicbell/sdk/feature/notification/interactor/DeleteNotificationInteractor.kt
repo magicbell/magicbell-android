@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.notification.interactor
 
-import com.harmony.kotlin.domain.interactor.DeleteInteractor
+import com.mobilejazz.harmony.domain.interactor.DeleteInteractor
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.notification.data.NotificationQuery
 import kotlinx.coroutines.withContext

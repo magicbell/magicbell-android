@@ -25,7 +25,9 @@ class NotificationStoreViewModel(
     notificationStore.addCountObserver(this)
     notificationStore.refresh(onSuccess = {
       onStoreReloaded()
-    }, onFailure = {})
+    }, onFailure = {
+      notifications = listOf()
+    })
   }
 
   // Content

@@ -1,13 +1,13 @@
 package com.magicbell.sdk.feature.userpreferences.data
 
-import com.harmony.kotlin.data.datasource.GetDataSource
-import com.harmony.kotlin.data.datasource.PutDataSource
-import com.harmony.kotlin.data.error.OperationNotAllowedException
-import com.harmony.kotlin.data.query.Query
 import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.error.NetworkException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.query.UserQuery
+import com.mobilejazz.harmony.data.datasource.GetDataSource
+import com.mobilejazz.harmony.data.datasource.PutDataSource
+import com.mobilejazz.harmony.data.error.OperationNotAllowedException
+import com.mobilejazz.harmony.data.query.Query
 
 internal class UserPreferencesNetworkDataSource(
   private val httpClient: HttpClient,
@@ -18,9 +18,11 @@ internal class UserPreferencesNetworkDataSource(
   override suspend fun get(query: Query): UserPreferencesEntity {
     return when (query) {
       is UserQuery -> {
-        val request = httpClient.prepareRequest("notification_preferences",
+        val request = httpClient.prepareRequest(
+          "notification_preferences",
           query.externalId,
-          query.email)
+          query.email
+        )
 
         httpClient.performRequest(request)?.let {
           outMapper.map(it)
@@ -45,8 +47,7 @@ internal class UserPreferencesNetworkDataSource(
           "/notification_preferences",
           query.externalId,
           query.email,
-          "PUT",
-          inMapper.map(userPreferencesEntity)
+          HttpClient.HttpMethod.Put(inMapper.map(userPreferencesEntity)),
         )
 
         httpClient.performRequest(request)?.let {

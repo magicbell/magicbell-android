@@ -3,12 +3,11 @@ package com.magicbell.sdk
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import com.harmony.kotlin.common.logger.Logger
 import com.magicbell.sdk.common.environment.Environment
 import com.magicbell.sdk.common.logger.LogLevel
-import com.magicbell.sdk.common.logger.LogLevel.DEBUG
-import com.magicbell.sdk.common.network.DefaultHttpClient
-import com.magicbell.sdk.common.network.HttpClient
+import com.magicbell.sdk.common.network.DefaultNetworkModule
+import com.magicbell.sdk.common.network.NetworkComponent
+import com.magicbell.sdk.common.threading.MainThreadExecutor
 import com.magicbell.sdk.feature.config.ConfigComponent
 import com.magicbell.sdk.feature.config.DefaultConfigModule
 import com.magicbell.sdk.feature.notification.DefaultNotificationModule
@@ -18,15 +17,12 @@ import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionComponent
 import com.magicbell.sdk.feature.realtime.DefaultStoreRealTimeModule
 import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
 import com.magicbell.sdk.feature.store.DefaultStoreModule
-import com.magicbell.sdk.common.threading.MainThreadExecutor
 import com.magicbell.sdk.feature.store.StoreComponent
 import com.magicbell.sdk.feature.userpreferences.DefaultUserPreferencesModule
 import com.magicbell.sdk.feature.userpreferences.UserPreferencesComponent
+import com.mobilejazz.harmony.common.logger.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import java.util.concurrent.Executors
 
 internal interface SDKComponent {
@@ -43,54 +39,54 @@ internal class DefaultSDKModule(
   private val context: Context,
 ) : SDKComponent {
 
-  private val json: Json by lazy {
-    Json {
-      ignoreUnknownKeys = true
-      explicitNulls = false
-    }
-  }
-
-  private val httpClient: HttpClient by lazy {
-    val okHttpClient = OkHttpClient.Builder()
-    if (logLevel == DEBUG) {
-      okHttpClient.addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-    }
-    okHttpClient.followRedirects(false)
-    okHttpClient.cache(null)
-
-    DefaultHttpClient(
-      environment,
-      okHttpClient.build(),
-      json
-    )
-  }
-
   // Components
+  private val networkComponent: NetworkComponent by lazy {
+    DefaultNetworkModule(logLevel, environment)
+  }
+
   private val coroutinesComponent: CoroutinesComponent by lazy {
     DefaultCoroutinesModule()
   }
   private val configComponent: ConfigComponent by lazy {
     DefaultConfigModule(
-      httpClient,
-      json,
+      networkComponent.getHttpClient(),
+      networkComponent.getJsonSerialization(),
       coroutinesComponent.coroutineDispatcher,
       context.getSharedPreferences("magicbell-sdk", Context.MODE_PRIVATE),
     )
   }
   private val notificationComponent: NotificationComponent by lazy {
-    DefaultNotificationModule(httpClient, json, coroutinesComponent.coroutineDispatcher)
+    DefaultNotificationModule(
+      networkComponent.getHttpClient(),
+      networkComponent.getJsonSerialization(),
+      coroutinesComponent.coroutineDispatcher
+    )
   }
   private val pushSubscriptionComponent: PushSubscriptionComponent by lazy {
-    DefaultPushSubscriptionModule(httpClient, json, coroutinesComponent.coroutineDispatcher)
+    DefaultPushSubscriptionModule(
+      networkComponent.getHttpClient(),
+      networkComponent.getJsonSerialization(),
+      coroutinesComponent.coroutineDispatcher
+    )
   }
   private val userPreferencesComponent: UserPreferencesComponent by lazy {
-    DefaultUserPreferencesModule(httpClient, json, coroutinesComponent.coroutineDispatcher)
+    DefaultUserPreferencesModule(
+      networkComponent.getHttpClient(),
+      networkComponent.getJsonSerialization(),
+      coroutinesComponent.coroutineDispatcher
+    )
   }
   private val storeComponent: StoreComponent by lazy {
-    DefaultStoreModule(httpClient, json, coroutinesComponent.coroutineDispatcher, MainThreadExecutor(Handler(Looper.getMainLooper())), context,
+    DefaultStoreModule(
+      networkComponent.getHttpClient(),
+      networkComponent.getJsonSerialization(),
+      coroutinesComponent.coroutineDispatcher,
+      MainThreadExecutor(Handler(Looper.getMainLooper())),
+      context,
       notificationComponent,
       storeRealTimeComponent,
-      configComponent)
+      configComponent
+    )
   }
   private val storeRealTimeComponent: StoreRealTimeComponent by lazy {
     DefaultStoreRealTimeModule(environment)

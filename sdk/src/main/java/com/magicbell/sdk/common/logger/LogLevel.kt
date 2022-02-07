@@ -1,7 +1,7 @@
 package com.magicbell.sdk.common.logger
 
-import com.harmony.kotlin.common.logger.AndroidLogger
-import com.harmony.kotlin.common.logger.Logger
+import com.mobilejazz.harmony.common.logger.AndroidLogger
+import com.mobilejazz.harmony.common.logger.Logger
 
 enum class LogLevel {
 

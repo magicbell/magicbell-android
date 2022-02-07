@@ -1,14 +1,14 @@
 package com.magicbell.sdk.feature.pushsubscription.data
 
-import com.harmony.kotlin.data.datasource.DeleteDataSource
-import com.harmony.kotlin.data.datasource.PutDataSource
-import com.harmony.kotlin.data.error.OperationNotAllowedException
-import com.harmony.kotlin.data.query.Query
 import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.error.NetworkException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.feature.pushsubscription.PushSubscription
 import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionEntity
+import com.mobilejazz.harmony.data.datasource.DeleteDataSource
+import com.mobilejazz.harmony.data.datasource.PutDataSource
+import com.mobilejazz.harmony.data.error.OperationNotAllowedException
+import com.mobilejazz.harmony.data.query.Query
 
 internal class PushSubscriptionNetworkDataSource(
   private val httpClient: HttpClient,
@@ -25,8 +25,7 @@ internal class PushSubscriptionNetworkDataSource(
           "/push_subscriptions",
           query.user.externalId,
           query.user.email,
-          "POST",
-          inMapper.map(pushSubscription)
+          HttpClient.HttpMethod.Post(inMapper.map(pushSubscription)),
         )
 
         httpClient.performRequest(request)?.let {
@@ -44,10 +43,12 @@ internal class PushSubscriptionNetworkDataSource(
   override suspend fun delete(query: Query) {
     when (query) {
       is DeletePushSubscriptionQuery -> {
-        val request = httpClient.prepareRequest("/push_subscriptions/${query.deviceToken}",
+        val request = httpClient.prepareRequest(
+          "/push_subscriptions/${query.deviceToken}",
           query.userQuery.externalId,
           query.userQuery.email,
-          "DELETE")
+          HttpClient.HttpMethod.Delete
+        )
 
         httpClient.performRequest(request)
         return

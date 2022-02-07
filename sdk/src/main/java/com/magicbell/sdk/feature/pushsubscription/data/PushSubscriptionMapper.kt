@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.pushsubscription.data
 
-import com.harmony.kotlin.data.mapper.Mapper
+import com.mobilejazz.harmony.data.mapper.Mapper
 import com.magicbell.sdk.feature.pushsubscription.PushSubscription
 import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionEntity
 import kotlinx.serialization.KSerializer
