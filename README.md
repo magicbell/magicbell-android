@@ -37,9 +37,11 @@ coroutineScope.launch {
   store.fetch().fold(
     onSuccess = { notificationList ->
 
-    }, onFailure = { error ->
+    }, 
+    onFailure = { error ->
 
-    })
+    }
+  )
 }
 ```
 
@@ -59,9 +61,8 @@ This repo also contains a full blown example. To run the project:
     - [Integrating into your app](#integrating-into-your-app)
 - [NotificationStore](#notificationstore)
     - [Obtaining a NotificationStore](#obtaining-a-notification-store)
-    - [Using a NotificationStore](#using-a-notification-store)
-    - [Editing notifications](#editing-notifications)
     - [Observing NotificationStore changes](#observing-notification-store-changes)
+    - [Notification Store adapter](#notification-store-adapter)
 - [User Preferences](#user-preferences)
 - [Push Notification Support](#push-notifications)
 - [Contributing](#contributing)
@@ -223,6 +224,8 @@ As soon as you perform a login, assign a value to this variable. Keep in mind, y
 You can also inject the MagicBell `User` instance in your own graph and keep track on it using your preferred pattern.
 
 ## NotificationStore
+
+### Obtaining a notification store
 
 The `NotificationStore` class represents a collection of [MagicBell](https://magicbell.com) notifications. You can create an instance of this class through
 the `.build(...)` method on the user store object.
@@ -441,6 +444,19 @@ This object must be created and retained by the user whenever it is needed.
 | `unseenCount`   | `State Int`            | The unseen count                                   |
 | `hasNextPage`   | `State Bool`           | Bool indicating if there is more content to fetch. |
 | `notifications` | `State [Notification]` | The array of notifications.                        |
+
+### Notification Store adapter
+
+The `Notification Store` is a list also and we recommend to use it in your `RecyclerView` adapters. Thanks to the observers you can refresh your 
+notification list very easy and with animations.
+```kotlin
+class NotificationsAdapter(
+  var store: NotificationStore,
+  private val notificationClick: (Notification, Int) -> Unit,
+) : RecyclerView.Adapter<NotificationsAdapter.ViewHolder>()
+```
+Another option would be to have your own list of notifications and modify it everytime that the user does an action.
+
 
 ## User Preferences
 
