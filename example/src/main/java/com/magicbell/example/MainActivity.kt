@@ -93,7 +93,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
   }
 
   private fun initMagicBell() {
-    user = (application as ExampleApplication).magicBellClient.forUserEmail("john@doe.com")
+    user = (application as ExampleApplication).magicBellClient.connectUserEmail("john@doe.com")
     store = user.store.forAll()
     store.addContentObserver(this)
     store.addCountObserver(this)
@@ -115,7 +115,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
           .setView(taskEditText)
           .setPositiveButton("Login") { dialog, which ->
             val email = taskEditText.text.toString()
-            user = (application as ExampleApplication).magicBellClient.forUserEmail(email)
+            user = (application as ExampleApplication).magicBellClient.connectUserEmail(email)
             configureStore(StorePredicate())
           }
           .setNegativeButton("Cancel", null)
@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     store.removeContentObserver(this)
     store.removeCountObserver(this)
 
-    store = user.store.with(predicate)
+    store = user.store.build(predicate)
 
     store.addContentObserver(this)
     store.addCountObserver(this)

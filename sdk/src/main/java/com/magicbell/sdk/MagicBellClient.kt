@@ -51,7 +51,7 @@ class MagicBellClient(
    * @param email The user's email.
    * @return A instance of User.
    */
-  fun forUserEmail(email: String): User {
+  fun connectUserEmail(email: String): User {
     val userQuery = UserQuery.createEmail(email)
     return getUser(userQuery)
   }
@@ -62,7 +62,7 @@ class MagicBellClient(
    * @param externalId The user's external id.
    * @return A instance of User.
    */
-  fun forUserExternalId(externalId: String): User {
+  fun connectUserExternalId(externalId: String): User {
     val userQuery = UserQuery.createExternalId(externalId)
     return getUser(userQuery)
   }
@@ -74,7 +74,7 @@ class MagicBellClient(
    * @param email The user's email.
    * @return A instance of User.
    */
-  fun forUser(externalId: String, email: String): User {
+  fun connectUserWith(email: String, externalId: String): User {
     val userQuery = UserQuery.create(externalId, email)
     return getUser(userQuery)
   }
@@ -84,7 +84,7 @@ class MagicBellClient(
    *
    * @param email The user's email.
    */
-  fun removeUserForEmail(email: String) {
+  fun disconnectUserEmail(email: String) {
     val userQuery = UserQuery.createEmail(email)
     return removeUser(userQuery)
   }
@@ -94,7 +94,7 @@ class MagicBellClient(
    *
    * @param externalId The user's external id.
    */
-  fun removeUserForExternalId(externalId: String) {
+  fun disconnectUserExternalId(externalId: String) {
     val userQuery = UserQuery.createExternalId(externalId)
     return removeUser(userQuery)
   }
@@ -105,7 +105,7 @@ class MagicBellClient(
    * @param externalId The user's email.
    * @param email The user's email.
    */
-  fun removeUserFor(externalId: String, email: String) {
+  fun disconnectUserWith(email: String, externalId: String) {
     val userQuery = UserQuery.create(externalId, email)
     return removeUser(userQuery)
   }
