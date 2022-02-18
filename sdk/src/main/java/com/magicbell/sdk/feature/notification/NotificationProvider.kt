@@ -10,8 +10,11 @@ import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.feature.notification.data.ActionNotificationNetworkDataSource
 import com.magicbell.sdk.feature.notification.data.NotificationEntityToNotificationMapper
 import com.magicbell.sdk.feature.notification.data.NotificationNetworkDataSource
+import com.magicbell.sdk.feature.notification.interactor.ActionNotificationDefaultInteractor
 import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInteractor
+import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationDefaultInteractor
 import com.magicbell.sdk.feature.notification.interactor.DeleteNotificationInteractor
+import com.magicbell.sdk.feature.notification.interactor.GetNotificationDefaultInteractor
 import com.magicbell.sdk.feature.notification.interactor.GetNotificationInteractor
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.CoroutineContext
@@ -29,7 +32,7 @@ internal class DefaultNotificationModule(
 ) : NotificationComponent {
 
   override fun getNotificationInteractor(): GetNotificationInteractor {
-    return GetNotificationInteractor(coroutineContext, notificationRepository.toGetInteractor(coroutineContext))
+    return GetNotificationDefaultInteractor(coroutineContext, notificationRepository.toGetInteractor(coroutineContext))
   }
 
   private val notificationRepository by lazy {
@@ -37,11 +40,11 @@ internal class DefaultNotificationModule(
   }
 
   override fun getActionNotificationInteractor(): ActionNotificationInteractor {
-    return ActionNotificationInteractor(coroutineContext, actionNotificationRepository.toPutInteractor(coroutineContext))
+    return ActionNotificationDefaultInteractor(coroutineContext, actionNotificationRepository.toPutInteractor(coroutineContext))
   }
 
   override fun getDeleteNotificationInteractor(): DeleteNotificationInteractor {
-    return DeleteNotificationInteractor(coroutineContext, actionNotificationRepository.toDeleteInteractor(coroutineContext))
+    return DeleteNotificationDefaultInteractor(coroutineContext, actionNotificationRepository.toDeleteInteractor(coroutineContext))
   }
 
   private val actionNotificationRepository by lazy {

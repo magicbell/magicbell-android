@@ -1,6 +1,7 @@
 package com.magicbell.sdk.feature.store
 
 import com.magicbell.sdk.common.query.UserQuery
+import com.magicbell.sdk.common.threading.MainThread
 import com.magicbell.sdk.feature.config.interactor.DeleteConfigInteractor
 import com.magicbell.sdk.feature.config.interactor.GetConfigInteractor
 import com.magicbell.sdk.feature.notification.interactor.ActionNotificationInteractor
@@ -39,6 +40,7 @@ internal interface InternalStoreDirector : StoreDirector {
 internal class RealTimeByPredicateStoreDirector(
   private val userQuery: UserQuery,
   private val coroutineContext: CoroutineContext,
+  private val mainThread: MainThread,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
   private val deleteNotificationInteractor: DeleteNotificationInteractor,
@@ -72,6 +74,7 @@ internal class RealTimeByPredicateStoreDirector(
       val store = NotificationStore(
         predicate,
         coroutineContext,
+        mainThread,
         userQuery,
         fetchStorePageInteractor,
         actionNotificationInteractor,

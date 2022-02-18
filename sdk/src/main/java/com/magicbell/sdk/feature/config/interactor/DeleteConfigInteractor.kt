@@ -6,12 +6,16 @@ import com.magicbell.sdk.common.query.UserQuery
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-internal class DeleteConfigInteractor(
+internal interface DeleteConfigInteractor {
+  suspend operator fun invoke(userQuery: UserQuery)
+}
+
+internal class DeleteConfigDefaultInteractor(
   private val coroutineContext: CoroutineContext,
   private val getConfigInteractor: DeleteInteractor,
-) {
+) : DeleteConfigInteractor {
 
-  suspend operator fun invoke(userQuery: UserQuery) {
+  override suspend operator fun invoke(userQuery: UserQuery) {
     return withContext(coroutineContext) {
       getConfigInteractor(userQuery, CacheOperation())
     }

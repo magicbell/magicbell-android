@@ -1,14 +1,17 @@
 package com.magicbell.sdk.feature.store
 
+import androidx.annotation.VisibleForTesting
 import com.magicbell.sdk.common.error.MagicBellError
 import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.network.graphql.CursorPredicate.Cursor.Next
 import com.magicbell.sdk.common.network.graphql.Edge
 import com.magicbell.sdk.common.query.UserQuery
+import com.magicbell.sdk.common.threading.MainThread
 import com.magicbell.sdk.feature.notification.Notification
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.ARCHIVE
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_ALL_AS_READ
+import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_ALL_AS_SEEN
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_AS_READ
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.MARK_AS_UNREAD
 import com.magicbell.sdk.feature.notification.data.NotificationActionQuery.Action.UNARCHIVE
@@ -19,12 +22,10 @@ import com.magicbell.sdk.feature.realtime.StoreRealTimeObserver
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 import java.util.Date
 import java.util.WeakHashMap
-import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -33,6 +34,7 @@ import kotlin.coroutines.CoroutineContext
 class NotificationStore internal constructor(
   val predicate: StorePredicate,
   private val coroutineContext: CoroutineContext,
+  private val mainThread: MainThread,
   private val userQuery: UserQuery,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
@@ -96,7 +98,7 @@ class NotificationStore internal constructor(
   }
 
   private fun refreshAndNotifyObservers() {
-    CoroutineScope(coroutineContext).launch {
+    CoroutineScope(Dispatchers.Main).launch {
       refresh()
     }
   }
@@ -116,7 +118,9 @@ class NotificationStore internal constructor(
 
   private var nextPageCursor: String? = null
 
+  @VisibleForTesting
   private val contentObservers = WeakHashMap<NotificationStoreContentObserver, NotificationStoreContentObserver>()
+  @VisibleForTesting
   private val countObservers = WeakHashMap<NotificationStoreCountObserver, NotificationStoreCountObserver>()
 
   private fun setTotalCount(value: Int, notifyObservers: Boolean) {
@@ -159,7 +163,7 @@ class NotificationStore internal constructor(
   /**
    * Returns a list containing all notifications
    */
-  private val notifications: List<Notification>
+  val notifications: List<Notification>
     get() {
       return edges.map {
         it.node
@@ -239,14 +243,18 @@ class NotificationStore internal constructor(
   }
 
   private fun forEachContentObserver(action: (NotificationStoreContentObserver) -> Unit) {
-    contentObservers.values.forEach { observer ->
-      action(observer)
+    mainThread.post {
+      contentObservers.values.forEach { observer ->
+        action(observer)
+      }
     }
   }
 
   private fun forEachCountObserver(action: (NotificationStoreCountObserver) -> Unit) {
-    countObservers.values.forEach { observer ->
-      action(observer)
+    mainThread.post {
+      countObservers.values.forEach { observer ->
+        action(observer)
+      }
     }
   }
   //endregion
@@ -258,16 +266,18 @@ class NotificationStore internal constructor(
    */
   suspend fun refresh(): Result<List<Notification>> {
     return runCatching {
-      val cursorPredicate = CursorPredicate(size = pageSize)
-      val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
-      clear(false)
-      configurePagination(storePage)
-      configureCount(storePage)
-      val newEdges = storePage.edges
-      edges.addAll(newEdges)
-      val notifications = newEdges.map { it.node }
-      forEachContentObserver { it.onStoreReloaded() }
-      notifications
+      runBlocking {
+        val cursorPredicate = CursorPredicate(size = pageSize)
+        val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
+        clear(false)
+        configurePagination(storePage)
+        configureCount(storePage)
+        val newEdges = storePage.edges
+        edges.addAll(newEdges)
+        val notifications = newEdges.map { it.node }
+        forEachContentObserver { it.onStoreReloaded() }
+        notifications
+      }
     }
   }
 
@@ -279,26 +289,28 @@ class NotificationStore internal constructor(
    */
   suspend fun fetch(): Result<List<Notification>> {
     return runCatching {
-      if (!hasNextPage) {
-        listOf<Notification>()
-      }
-      val cursorPredicate: CursorPredicate = nextPageCursor?.let { after ->
-        CursorPredicate(Next(after), pageSize)
-      } ?: run {
-        CursorPredicate(size = pageSize)
-      }
+      runBlocking {
+        if (!hasNextPage) {
+          return@runBlocking listOf<Notification>()
+        }
+        val cursorPredicate: CursorPredicate = nextPageCursor?.let { after ->
+          CursorPredicate(Next(after), pageSize)
+        } ?: run {
+          CursorPredicate(size = pageSize)
+        }
 
-      val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
-      configurePagination(storePage)
-      configureCount(storePage)
+        val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
+        configurePagination(storePage)
+        configureCount(storePage)
 
-      val oldCount = edges.count()
-      val newEdges = storePage.edges
-      edges.addAll(newEdges)
-      val notifications = newEdges.map { it.node }
-      val indexes = oldCount until edges.size
-      forEachContentObserver { it.onNotificationsInserted(indexes.toList()) }
-      notifications
+        val oldCount = edges.count()
+        val newEdges = storePage.edges
+        edges.addAll(newEdges)
+        val notifications = newEdges.map { it.node }
+        val indexes = oldCount until edges.size
+        forEachContentObserver { it.onNotificationsInserted(indexes.toList()) }
+        notifications
+      }
     }
   }
 
@@ -399,8 +411,7 @@ class NotificationStore internal constructor(
         MARK_ALL_AS_READ,
         modifications = { notification ->
           markNotificationAsRead(notification, predicate)
-        }
-      )
+        }).getOrThrow()
     }
   }
 
@@ -412,21 +423,20 @@ class NotificationStore internal constructor(
   suspend fun markAllNotificationAsSeen(): Result<Unit> {
     return runCatching {
       executeAllNotificationsAction(
-        MARK_ALL_AS_READ,
+        MARK_ALL_AS_SEEN,
         modifications = { notification ->
           if (notification.seenAt == null) {
             notification.seenAt = Date()
             unseenCount -= 1
           }
-        }
-      )
+        }).getOrThrow()
     }
   }
 
   //region Private methods
   //region NotificationActions
   private fun clear(notifyChanges: Boolean) {
-    val notificationCount = count
+    val notificationCount = size
     edges.clear()
     setTotalCount(0, notifyChanges)
     setUnreadCount(0, notifyChanges)
@@ -471,13 +481,13 @@ class NotificationStore internal constructor(
   private fun configurePagination(storePage: StorePage) {
     val pageInfo = storePage.pageInfo
     nextPageCursor = pageInfo.endCursor
-    hasNextPage = pageInfo.hasNextPage
+    setHasNextPage(pageInfo.hasNextPage)
   }
 
   private fun configureCount(storePage: StorePage) {
-    totalCount = storePage.totalCount
-    unreadCount = storePage.unreadCount
-    unseenCount = storePage.unseenCount
+    setTotalCount(storePage.totalCount, true)
+    setUnreadCount(storePage.unreadCount, true)
+    setUnseenCount(storePage.unseenCount, true)
   }
 
   private fun markNotificationAsRead(notification: Notification, storePredicate: StorePredicate) {
@@ -503,16 +513,18 @@ class NotificationStore internal constructor(
   }
 
   private fun markNotificationAsUnread(notification: Notification, storePredicate: StorePredicate) {
-    storePredicate.read?.also {
-      if (it) {
-        setTotalCount(totalCount - 1, true)
-        setUnreadCount(0, true)
-      } else {
-        setTotalCount(totalCount + 1, true)
+    if (notification.readAt != null) {
+      storePredicate.read?.also {
+        if (it) {
+          setTotalCount(totalCount - 1, true)
+          setUnreadCount(0, true)
+        } else {
+          setTotalCount(totalCount + 1, true)
+          setUnreadCount(unreadCount + 1, true)
+        }
+      } ?: run {
         setUnreadCount(unreadCount + 1, true)
       }
-    } ?: run {
-      setUnreadCount(unreadCount + 1, true)
     }
 
     notification.readAt = null
@@ -563,7 +575,7 @@ class NotificationStore internal constructor(
   }
 
   private fun decreaseUnseenCountIfNotificationWasUnseen(notification: Notification) {
-    notification.seenAt.also {
+    if (notification.seenAt == null) {
       setUnseenCount(unseenCount - 1, true)
     }
   }

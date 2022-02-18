@@ -1,6 +1,8 @@
 package com.magicbell.sdk
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import com.harmony.kotlin.common.logger.Logger
 import com.magicbell.sdk.common.environment.Environment
 import com.magicbell.sdk.common.logger.LogLevel
@@ -16,6 +18,7 @@ import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionComponent
 import com.magicbell.sdk.feature.realtime.DefaultStoreRealTimeModule
 import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
 import com.magicbell.sdk.feature.store.DefaultStoreModule
+import com.magicbell.sdk.common.threading.MainThreadExecutor
 import com.magicbell.sdk.feature.store.StoreComponent
 import com.magicbell.sdk.feature.userpreferences.DefaultUserPreferencesModule
 import com.magicbell.sdk.feature.userpreferences.UserPreferencesComponent
@@ -84,7 +87,10 @@ internal class DefaultSDKModule(
     DefaultUserPreferencesModule(httpClient, json, coroutinesComponent.coroutineDispatcher)
   }
   private val storeComponent: StoreComponent by lazy {
-    DefaultStoreModule(httpClient, json, coroutinesComponent.coroutineDispatcher, context, notificationComponent, storeRealTimeComponent, configComponent)
+    DefaultStoreModule(httpClient, json, coroutinesComponent.coroutineDispatcher, MainThreadExecutor(Handler(Looper.getMainLooper())), context,
+      notificationComponent,
+      storeRealTimeComponent,
+      configComponent)
   }
   private val storeRealTimeComponent: StoreRealTimeComponent by lazy {
     DefaultStoreRealTimeModule(environment)

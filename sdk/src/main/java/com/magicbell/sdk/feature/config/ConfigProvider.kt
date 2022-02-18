@@ -13,6 +13,8 @@ import com.magicbell.sdk.common.network.StringToEntityMapper
 import com.magicbell.sdk.feature.config.data.ConfigNetworkDataSource
 import com.magicbell.sdk.feature.config.data.ConfigToStringMapper
 import com.magicbell.sdk.feature.config.data.StringToConfigMapper
+import com.magicbell.sdk.feature.config.interactor.DeleteConfigDefaultInteractor
+import com.magicbell.sdk.feature.config.interactor.GetConfigDefaultInteractor
 import com.magicbell.sdk.feature.config.interactor.DeleteConfigInteractor
 import com.magicbell.sdk.feature.config.interactor.GetConfigInteractor
 import kotlinx.coroutines.CoroutineDispatcher
@@ -52,7 +54,9 @@ internal class DefaultConfigModule(
     )
   }
 
-  override fun getGetConfigInteractor() = GetConfigInteractor(coroutineDispatcher, userRepository.toGetInteractor(coroutineDispatcher))
+  override fun getGetConfigInteractor(): GetConfigInteractor =
+    GetConfigDefaultInteractor(coroutineDispatcher, userRepository.toGetInteractor(coroutineDispatcher))
 
-  override fun getDeleteConfigInteractor() = DeleteConfigInteractor(coroutineDispatcher, userRepository.toDeleteInteractor(coroutineDispatcher))
+  override fun getDeleteConfigInteractor(): DeleteConfigInteractor =
+    DeleteConfigDefaultInteractor(coroutineDispatcher, userRepository.toDeleteInteractor(coroutineDispatcher))
 }

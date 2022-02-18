@@ -33,7 +33,7 @@ class NotificationActionsSheetFragment(
   override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
     super.onViewCreated(view, savedInstanceState)
     initDialog()
-    val isRead = notification.readAt != null
+    val isRead = notification.isRead
     if (isRead) {
       binding.modalReadTv.text = "Mark Unread"
     } else {
@@ -44,7 +44,7 @@ class NotificationActionsSheetFragment(
       dismiss()
     }
 
-    val isArchived = notification.archivedAt != null
+    val isArchived = notification.isArchived
     if (isArchived) {
       binding.modalArchiveTv.text = "Unarchive"
     } else {

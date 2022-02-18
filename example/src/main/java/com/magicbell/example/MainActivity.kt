@@ -22,10 +22,16 @@ import com.magicbell.sdk.feature.store.NotificationStore
 import com.magicbell.sdk.feature.store.NotificationStoreContentObserver
 import com.magicbell.sdk.feature.store.NotificationStoreCountObserver
 import com.magicbell.sdk.feature.store.StorePredicate
+import com.magicbell.sdk.feature.store.archive
+import com.magicbell.sdk.feature.store.delete
+import com.magicbell.sdk.feature.store.fetch
 import com.magicbell.sdk.feature.store.forAll
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.magicbell.sdk.feature.store.markAllNotificationAsRead
+import com.magicbell.sdk.feature.store.markAllNotificationAsSeen
+import com.magicbell.sdk.feature.store.markAsRead
+import com.magicbell.sdk.feature.store.markAsUnread
+import com.magicbell.sdk.feature.store.refresh
+import com.magicbell.sdk.feature.store.unarchive
 
 class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.ActionListener, NotificationStoreContentObserver, NotificationStoreCountObserver {
 
@@ -75,12 +81,9 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
         if (!store.hasNextPage) {
           return
         }
-        GlobalScope.launch(Dispatchers.Main) {
-          store.fetch().fold(onSuccess = {
-          }, onFailure = {
-
-          })
-        }
+        store.fetch(onSuccess = {
+        }, onFailure = {
+        })
       }
     }
     recyclerView.adapter = notificationsAdapter
@@ -119,7 +122,6 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
       }
       R.id.customize_predicate -> {
         val colors = arrayOf("All", "Read", "Unread", "Archived")
-
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Change predicate")
         builder.setItems(colors) { dialog, which ->
@@ -134,21 +136,15 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
         builder.show()
       }
       R.id.mark_all_read -> {
-        GlobalScope.launch(Dispatchers.Main) {
-          store.markAllNotificationAsRead().fold(onSuccess = {
-          }, onFailure = {
-          })
-        }
+        store.markAllNotificationAsRead(onSuccess = {}, onFailure = {})
       }
+
       R.id.mark_all_seen -> {
-        GlobalScope.launch(Dispatchers.Main) {
-          store.markAllNotificationAsSeen().fold(onSuccess = {
-          }, onFailure = {
-          })
-        }
+        store.markAllNotificationAsSeen(onSuccess = {}, onFailure = {})
       }
       else -> {}
     }
+
     return true
   }
 
@@ -167,22 +163,19 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
   @SuppressLint("NotifyDataSetChanged")
   private fun reloadStore() {
     if (store.count == 0) {
-      GlobalScope.launch(Dispatchers.Main) {
-        store.refresh().fold(onSuccess = {
-          title = "Notifications - ${store.totalCount}"
-          scrollListener.resetState()
-          notificationsAdapter.store = store
-          notificationsAdapter.notifyDataSetChanged()
-        }, onFailure = {
-          println(it)
-        })
-      }
+      store.refresh(onSuccess = {
+        title = "Notifications - ${store.totalCount}"
+        scrollListener.resetState()
+        notificationsAdapter.store = store
+        notificationsAdapter.notifyDataSetChanged()
+      }, onFailure = {
+        println(it)
+      })
     } else {
       notificationsAdapter.notifyDataSetChanged()
       // TODO: 20/1/22 add badge
     }
   }
-
 
   private fun setBottomSheetVisibility(isVisible: Boolean) {
     val updatedState = if (isVisible) BottomSheetBehavior.STATE_EXPANDED else BottomSheetBehavior.STATE_COLLAPSED
@@ -190,60 +183,46 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
   }
 
   override fun onArchiveClick(notification: Notification, isArchived: Boolean) {
-    GlobalScope.launch(Dispatchers.Main) {
-      if (isArchived) {
-        store.unarchive(notification)
-      } else {
-        store.archive(notification)
-      }
+    if (isArchived) {
+      store.unarchive(notification, onSuccess = {}, onFailure = {})
+    } else {
+      store.archive(notification, onSuccess = {}, onFailure = {})
     }
   }
 
   override fun onReadClick(notification: Notification, isRead: Boolean) {
-    GlobalScope.launch(Dispatchers.Main) {
-      if (isRead) {
-        store.markAsUnread(notification)
-      } else {
-        store.markAsRead(notification)
-      }
+    if (isRead) {
+      store.markAsUnread(notification, onSuccess = {}, onFailure = {})
+    } else {
+      store.markAsRead(notification, onSuccess = {}, onFailure = {})
     }
   }
 
   override fun onDeleteClick(notification: Notification) {
-    GlobalScope.launch(Dispatchers.Main) {
-      store.delete(notification)
-    }
+    store.delete(notification, onCompletion = {}, onFailure = {})
   }
 
   override fun onStoreReloaded() {
-    runOnUiThread {
-      notificationsAdapter.notifyDataSetChanged()
-    }
+    notificationsAdapter.notifyDataSetChanged()
   }
 
   override fun onNotificationsInserted(indexes: List<Int>) {
-    runOnUiThread {
-      notificationsAdapter.notifyItemRangeInserted(indexes.first(), indexes.last())
-    }
+    notificationsAdapter.notifyItemRangeInserted(indexes.first(), indexes.last())
   }
 
   override fun onNotificationsChanged(indexes: List<Int>) {
-    runOnUiThread {
-      if (indexes.size == 1) {
-        notificationsAdapter.notifyItemChanged(indexes.first())
-      } else {
-        notificationsAdapter.notifyItemRangeChanged(indexes.first(), indexes.last())
-      }
+    if (indexes.size == 1) {
+      notificationsAdapter.notifyItemChanged(indexes.first())
+    } else {
+      notificationsAdapter.notifyItemRangeChanged(indexes.first(), indexes.last())
     }
   }
 
   override fun onNotificationsDeleted(indexes: List<Int>) {
-    runOnUiThread {
-      if (indexes.size == 1) {
-        notificationsAdapter.notifyItemRemoved(indexes.first())
-      } else {
-        notificationsAdapter.notifyDataSetChanged()
-      }
+    if (indexes.size == 1) {
+      notificationsAdapter.notifyItemRemoved(indexes.first())
+    } else {
+      notificationsAdapter.notifyDataSetChanged()
     }
   }
 
@@ -252,9 +231,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
   }
 
   override fun onTotalCountChanged(count: Int) {
-    runOnUiThread {
-      title = "Notifications - $count"
-    }
+    title = "Notifications - $count"
   }
 
   override fun onUnreadCountChanged(count: Int) {

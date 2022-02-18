@@ -12,7 +12,7 @@ class NotificationValidator(private val storePredicate: StorePredicate) {
         validateTopic(notification)
   }
 
-  fun validateRead(notification: Notification): Boolean {
+  private fun validateRead(notification: Notification): Boolean {
     return if (storePredicate.read != null && storePredicate.read && notification.readAt != null) {
       true
     } else if (storePredicate.read != null && !storePredicate.read && notification.readAt == null) {
@@ -22,7 +22,7 @@ class NotificationValidator(private val storePredicate: StorePredicate) {
     }
   }
 
-  fun validateSeen(notification: Notification): Boolean {
+  private fun validateSeen(notification: Notification): Boolean {
     return if (storePredicate.seen != null && storePredicate.seen && notification.seenAt != null) {
       true
     } else if (storePredicate.seen != null && !storePredicate.seen && notification.seenAt == null) {
@@ -32,7 +32,7 @@ class NotificationValidator(private val storePredicate: StorePredicate) {
     }
   }
 
-  fun validateArchived(notification: Notification): Boolean {
+  private fun validateArchived(notification: Notification): Boolean {
     return if (storePredicate.archived && notification.archivedAt != null) {
       true
     } else {
@@ -40,7 +40,7 @@ class NotificationValidator(private val storePredicate: StorePredicate) {
     }
   }
 
-  fun validateCategory(notification: Notification): Boolean {
+  private fun validateCategory(notification: Notification): Boolean {
     return if (storePredicate.categories.isEmpty()) {
       true
     } else if (notification.category != null) {
@@ -50,7 +50,7 @@ class NotificationValidator(private val storePredicate: StorePredicate) {
     }
   }
 
-  fun validateTopic(notification: Notification): Boolean {
+  private fun validateTopic(notification: Notification): Boolean {
     return if (storePredicate.topics.isEmpty()) {
       true
     } else if (notification.topic != null) {

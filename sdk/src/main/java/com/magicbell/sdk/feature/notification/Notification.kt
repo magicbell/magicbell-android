@@ -17,7 +17,7 @@ internal data class NotificationEntity(val notification: Notification)
 data class Notification(
   val id: String,
   val title: String,
-  val content: String?,
+  val content: String? = null,
   @SerialName("action_url")
   val actionURL: String? = null,
   val category: String? = null,
