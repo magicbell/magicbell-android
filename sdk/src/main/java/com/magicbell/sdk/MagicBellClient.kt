@@ -20,13 +20,13 @@ import java.net.URL
  * @param context The application context
  */
 class MagicBellClient(
-  apiKey: String,
-  apiSecret: String? = null,
-  enableHMAC: Boolean = false,
-  baseURL: URL = defaultBaseUrl,
-  logLevel: LogLevel = LogLevel.NONE,
+  private val apiKey: String,
+  private val apiSecret: String? = null,
+  private val enableHMAC: Boolean = false,
+  private val baseURL: URL = defaultBaseUrl,
+  private val logLevel: LogLevel = LogLevel.NONE,
   private val magicBellScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
-  context: Context,
+  private val context: Context,
 ) {
 
   companion object {

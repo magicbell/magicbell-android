@@ -37,7 +37,7 @@ coroutineScope.launch {
   store.fetch().fold(
     onSuccess = { notificationList ->
 
-    }, 
+    },
     onFailure = { error ->
 
     }
@@ -93,6 +93,7 @@ val magicbell = MagicBellClient(
   baseURL = defaultBaseUrl,
   logLevel = LogLevel.NONE,
   context = applicationContext,
+  magicBellScope = coroutineScope
 ) 
 ```
 
@@ -102,6 +103,8 @@ val magicbell = MagicBellClient(
 | `apiSecret`  | `nil`         | Your MagicBell's API secret                                                                  |
 | `enableHMAC` | `false`       | Set it to `true` if you want HMAC enabled. Note the `apiSecret` is required if set to `true` |
 | `logLevel`   | `.none`       | Set it to `.debug` to enable logs                                                            |
+| `context`    | -             | Application Context                                                                                 |
+| `logLevel`   | `Dispatchers(Main)` | Scope to run all the tasks.                                              |
 
 Though the API key is meant to be published, you should not distribute the API secret. Rather, enable HMAC in your project and generate the user secret on your
 backend before distributing your app.
@@ -397,6 +400,47 @@ store.forEachIndexed { index, notification ->
 
 ### Observing notification store changes
 
+#### Kotlin flow
+
+`NotificationStore` exposes two flows with Content changes and Count changes. You can subscribe both of them to receive all the changes in the store. For
+Content event returns:
+
+```Kotlin
+sealed class NotificationStoreContentEvent {
+  object Reloaded : NotificationStoreContentEvent()
+  class Inserted(val indexes: List<Int>) : NotificationStoreContentEvent()
+  class Changed(val indexes: List<Int>) : NotificationStoreContentEvent()
+  class Deleted(val indexes: List<Int>) : NotificationStoreContentEvent()
+  class HasNextPageChanged(val hasNextPage: Boolean) : NotificationStoreContentEvent()
+}
+```
+
+For Count events returns:
+
+```Kotlin
+sealed class NotificationStoreCountEvent {
+  class TotalCountChanged(val count: Int) : NotificationStoreCountEvent()
+  class UnreadCountChanged(val count: Int) : NotificationStoreCountEvent()
+  class UnseenCountChanged(val count: Int) : NotificationStoreCountEvent()
+}
+```
+
+Example. Subscribe to the flows:
+
+```Kotlin
+yourScope.launch {
+  store.contentFlow.onEach { contentEvent ->
+    // when(contentEvent)
+    println("Content $it)
+  }.launchIn(this)
+
+  store.countFlow.onEach { countEvent ->
+    // when(countEvent)
+    print("Count $it")
+  }.launchIn(this)
+}
+```
+
 #### Classic Observer Approach
 
 Instances of `NotificationStore` are automatically updated when new notifications arrive, or a notification's state changes (marked read, archived, etc.)
@@ -447,16 +491,17 @@ This object must be created and retained by the user whenever it is needed.
 
 ### Notification Store adapter
 
-The `Notification Store` is a list also and we recommend to use it in your `RecyclerView` adapters. Thanks to the observers you can refresh your 
-notification list very easy and with animations.
+The `Notification Store` is a list also and we recommend to use it in your `RecyclerView` adapters. Thanks to the observers you can refresh your notification
+list very easy and with animations.
+
 ```kotlin
 class NotificationsAdapter(
   var store: NotificationStore,
   private val notificationClick: (Notification, Int) -> Unit,
 ) : RecyclerView.Adapter<NotificationsAdapter.ViewHolder>()
 ```
-Another option would be to have your own list of notifications and modify it everytime that the user does an action.
 
+Another option would be to have your own list of notifications and modify it everytime that the user does an action.
 
 ## User Preferences
 
