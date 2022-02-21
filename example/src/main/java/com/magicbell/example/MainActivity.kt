@@ -83,8 +83,11 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
         if (!store.hasNextPage) {
           return
         }
+
         store.fetch(onSuccess = {
+
         }, onFailure = {
+
         })
       }
     }

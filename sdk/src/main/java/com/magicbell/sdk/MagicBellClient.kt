@@ -25,6 +25,7 @@ class MagicBellClient(
   enableHMAC: Boolean = false,
   baseURL: URL = defaultBaseUrl,
   logLevel: LogLevel = LogLevel.NONE,
+  private val magicBellScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
   context: Context,
 ) {
 
@@ -41,7 +42,8 @@ class MagicBellClient(
     sdkComponent = DefaultSDKModule(
       Environment(apiKey, apiSecret, baseURL, enableHMAC),
       logLevel,
-      context
+      context,
+      magicBellScope
     )
   }
 
@@ -118,7 +120,7 @@ class MagicBellClient(
   fun setDeviceToken(deviceToken: String) {
     this.deviceToken = deviceToken
     users.values.forEach { user ->
-      CoroutineScope(Dispatchers.IO).launch {
+      magicBellScope.launch {
         user.pushSubscription.sendPushSubscription(deviceToken)
       }
     }
@@ -136,7 +138,7 @@ class MagicBellClient(
 
     users[userQuery.key] = user
     deviceToken?.also { deviceToken ->
-      CoroutineScope(Dispatchers.IO).launch {
+      magicBellScope.launch {
         user.pushSubscription.sendPushSubscription(deviceToken)
       }
     }
@@ -146,7 +148,7 @@ class MagicBellClient(
 
   private fun removeUser(userQuery: UserQuery) {
     users[userQuery.key]?.also { user ->
-      CoroutineScope(Dispatchers.IO).launch {
+      magicBellScope.launch {
         user.logout(deviceToken)
         users.remove(userQuery.key)
       }

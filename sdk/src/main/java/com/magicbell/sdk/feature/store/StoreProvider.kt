@@ -1,8 +1,6 @@
 package com.magicbell.sdk.feature.store
 
 import android.content.Context
-import com.mobilejazz.harmony.data.repository.SingleGetDataSourceRepository
-import com.mobilejazz.harmony.domain.interactor.toGetInteractor
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.network.graphql.GraphQLRequestEntity
 import com.magicbell.sdk.common.network.graphql.GraphQLResponse
@@ -17,6 +15,9 @@ import com.magicbell.sdk.feature.store.data.StoresGraphQLNetworkDataSource
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageDefaultInteractor
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import com.magicbell.sdk.feature.store.interactor.GetStorePagesInteractor
+import com.mobilejazz.harmony.data.repository.SingleGetDataSourceRepository
+import com.mobilejazz.harmony.domain.interactor.toGetInteractor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.CoroutineContext
 
@@ -28,6 +29,7 @@ internal class DefaultStoreModule(
   private val httpClient: HttpClient,
   private val json: Json,
   private val coroutineContext: CoroutineContext,
+  private val coroutineScope: CoroutineScope,
   private val mainThread: MainThread,
   private val context: Context,
   private val notificationComponent: NotificationComponent,
@@ -58,6 +60,7 @@ internal class DefaultStoreModule(
     return RealTimeByPredicateStoreDirector(
       userQuery,
       coroutineContext,
+      coroutineScope,
       mainThread,
       getFetchStorePageInteractor(),
       notificationComponent.getActionNotificationInteractor(),

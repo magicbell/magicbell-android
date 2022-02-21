@@ -22,6 +22,7 @@ import com.magicbell.sdk.feature.userpreferences.DefaultUserPreferencesModule
 import com.magicbell.sdk.feature.userpreferences.UserPreferencesComponent
 import com.mobilejazz.harmony.common.logger.Logger
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executors
 
@@ -37,6 +38,7 @@ internal class DefaultSDKModule(
   private val environment: Environment,
   private val logLevel: LogLevel,
   private val context: Context,
+  private val coroutineScope: CoroutineScope,
 ) : SDKComponent {
 
   // Components
@@ -81,6 +83,7 @@ internal class DefaultSDKModule(
       networkComponent.getHttpClient(),
       networkComponent.getJsonSerialization(),
       coroutinesComponent.coroutineDispatcher,
+      coroutineScope,
       MainThreadExecutor(Handler(Looper.getMainLooper())),
       context,
       notificationComponent,

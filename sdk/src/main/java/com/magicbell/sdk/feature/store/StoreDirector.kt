@@ -40,6 +40,7 @@ internal interface InternalStoreDirector : StoreDirector {
 internal class RealTimeByPredicateStoreDirector(
   private val userQuery: UserQuery,
   private val coroutineContext: CoroutineContext,
+  private val coroutineScope: CoroutineScope,
   private val mainThread: MainThread,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
@@ -74,6 +75,7 @@ internal class RealTimeByPredicateStoreDirector(
       val store = NotificationStore(
         predicate,
         coroutineContext,
+        coroutineScope,
         mainThread,
         userQuery,
         fetchStorePageInteractor,
