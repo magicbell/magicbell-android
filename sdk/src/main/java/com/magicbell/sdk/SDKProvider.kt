@@ -107,10 +107,10 @@ internal class DefaultSDKModule(
   override fun configComponent(): ConfigComponent = configComponent
 }
 
-interface CoroutinesComponent {
+internal interface CoroutinesComponent {
   val coroutineDispatcher: CoroutineDispatcher
 }
 
-class DefaultCoroutinesModule : CoroutinesComponent {
+internal class DefaultCoroutinesModule : CoroutinesComponent {
   override var coroutineDispatcher: CoroutineDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
 }

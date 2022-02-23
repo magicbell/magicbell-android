@@ -47,10 +47,12 @@ dependencies {
   implementation 'androidx.appcompat:appcompat:1.4.1'
   implementation 'com.google.android.material:material:1.5.0'
   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
-  // MagicBell
-  implementation project (':sdk')
-  implementation project (':sdk-compose')
 
+  // MagicBell
+  implementation 'com.magicbell:magicbell-sdk:0.0.2'
+  implementation 'com.magicbell:magicbell-sdk-compose:0.0.2'
+
+  // Compose
   implementation 'androidx.activity:activity-compose:1.4.0'
   implementation 'androidx.compose.material:material:1.0.5'
   implementation 'androidx.compose.animation:animation:1.0.5'
