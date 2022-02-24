@@ -1,11 +1,11 @@
 package com.magicbell.sdk.feature.notification
 
-import com.harmony.kotlin.data.datasource.VoidGetDataSource
-import com.harmony.kotlin.data.repository.SingleDataSourceRepository
-import com.harmony.kotlin.data.repository.SingleGetDataSourceRepository
-import com.harmony.kotlin.domain.interactor.toDeleteInteractor
-import com.harmony.kotlin.domain.interactor.toGetInteractor
-import com.harmony.kotlin.domain.interactor.toPutInteractor
+import com.mobilejazz.harmony.data.datasource.VoidGetDataSource
+import com.mobilejazz.harmony.data.repository.SingleDataSourceRepository
+import com.mobilejazz.harmony.data.repository.SingleGetDataSourceRepository
+import com.mobilejazz.harmony.domain.interactor.toDeleteInteractor
+import com.mobilejazz.harmony.domain.interactor.toGetInteractor
+import com.mobilejazz.harmony.domain.interactor.toPutInteractor
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.feature.notification.data.ActionNotificationNetworkDataSource
 import com.magicbell.sdk.feature.notification.data.NotificationEntityToNotificationMapper

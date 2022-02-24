@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.userpreferences.data
 
-import com.harmony.kotlin.data.mapper.Mapper
+import com.mobilejazz.harmony.data.mapper.Mapper
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 

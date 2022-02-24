@@ -13,11 +13,17 @@ internal interface HttpClient {
     path: String,
     externalId: String?,
     email: String?,
-    httpMethod: String = "GET",
-    postBody: String? = null,
+    httpMethod: HttpMethod = HttpMethod.Get
   ): Request
 
   suspend fun performRequest(request: Request): String?
+
+  sealed class HttpMethod(val name: String, val body: String? = null) {
+    object Get: HttpMethod("GET")
+    class Post(body: String = ""): HttpMethod("POST", body)
+    class Put(body: String = ""): HttpMethod("PUT", body)
+    object Delete: HttpMethod("DELETE")
+  }
 }
 
 internal class DefaultHttpClient(
@@ -26,7 +32,7 @@ internal class DefaultHttpClient(
   private val json: Json,
 ) : HttpClient {
 
-  override fun prepareRequest(path: String, externalId: String?, email: String?, httpMethod: String, postBody: String?): Request {
+  override fun prepareRequest(path: String, externalId: String?, email: String?, httpMethod: HttpClient.HttpMethod): Request {
     val request = Request.Builder()
       .url("${environment.baseUrl}/$path")
       .addHeader("X-MAGICBELL-API-KEY", environment.apiKey)
@@ -36,7 +42,7 @@ internal class DefaultHttpClient(
     }
 
     addExternalIdOrEmailHeader(externalId, email, request)
-    request.method(httpMethod, postBody?.toRequestBody())
+    request.method(httpMethod.name, httpMethod.body?.toRequestBody())
     request.addHeader("Content-Type", "application/json")
 
     return request.build()

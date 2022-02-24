@@ -23,7 +23,7 @@ interface StoreDirector {
    *
    * @param predicate Notification store's predicate. Define an scope for the notification store. Read, Seen, Archive, Categories, Topics and inApp.
    */
-  fun with(predicate: StorePredicate): NotificationStore
+  fun build(predicate: StorePredicate): NotificationStore
 
   /**
    * Disposes a notification store for the given predicate if exists. To be called when a notification store is no longer needed.
@@ -40,6 +40,7 @@ internal interface InternalStoreDirector : StoreDirector {
 internal class RealTimeByPredicateStoreDirector(
   private val userQuery: UserQuery,
   private val coroutineContext: CoroutineContext,
+  private val coroutineScope: CoroutineScope,
   private val mainThread: MainThread,
   private val fetchStorePageInteractor: FetchStorePageInteractor,
   private val actionNotificationInteractor: ActionNotificationInteractor,
@@ -67,13 +68,14 @@ internal class RealTimeByPredicateStoreDirector(
     }
   }
 
-  override fun with(predicate: StorePredicate): NotificationStore {
+  override fun build(predicate: StorePredicate): NotificationStore {
     return stores.firstOrNull { it.predicate.hashCode() == predicate.hashCode() }?.also { store ->
       return store
     } ?: run {
       val store = NotificationStore(
         predicate,
         coroutineContext,
+        coroutineScope,
         mainThread,
         userQuery,
         fetchStorePageInteractor,
@@ -109,21 +111,21 @@ internal class RealTimeByPredicateStoreDirector(
  * Returns the store for all notifications
  */
 fun StoreDirector.forAll(): NotificationStore {
-  return with(StorePredicate())
+  return build(StorePredicate())
 }
 
 /**
  * Returns the store for unread notifications
  */
 fun StoreDirector.forUnread(): NotificationStore {
-  return with(StorePredicate(read = false))
+  return build(StorePredicate(read = false))
 }
 
 /**
  * Returns the store for read notifications
  */
 fun StoreDirector.forRead(): NotificationStore {
-  return with(StorePredicate(read = true))
+  return build(StorePredicate(read = true))
 }
 
 /**
@@ -132,7 +134,7 @@ fun StoreDirector.forRead(): NotificationStore {
  * @param categories The list of categories
  */
 fun StoreDirector.forCategories(categories: List<String>): NotificationStore {
-  return with(StorePredicate(categories = categories))
+  return build(StorePredicate(categories = categories))
 }
 
 /**
@@ -141,5 +143,5 @@ fun StoreDirector.forCategories(categories: List<String>): NotificationStore {
  * @param topics The list of topics
  */
 fun StoreDirector.forTopics(topics: List<String>): NotificationStore {
-  return with(StorePredicate(topics = topics))
+  return build(StorePredicate(topics = topics))
 }

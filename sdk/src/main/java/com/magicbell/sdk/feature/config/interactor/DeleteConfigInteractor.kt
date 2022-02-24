@@ -1,7 +1,7 @@
 package com.magicbell.sdk.feature.config.interactor
 
-import com.harmony.kotlin.data.operation.CacheOperation
-import com.harmony.kotlin.domain.interactor.DeleteInteractor
+import com.mobilejazz.harmony.data.operation.CacheOperation
+import com.mobilejazz.harmony.domain.interactor.DeleteInteractor
 import com.magicbell.sdk.common.query.UserQuery
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext

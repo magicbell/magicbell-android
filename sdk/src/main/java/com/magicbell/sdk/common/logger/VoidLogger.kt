@@ -1,6 +1,6 @@
 package com.magicbell.sdk.common.logger
 
-import com.harmony.kotlin.common.logger.Logger
+import com.mobilejazz.harmony.common.logger.Logger
 
 class VoidLogger : Logger {
 

@@ -9,7 +9,7 @@ import com.magicbell.sdk.feature.userpreferences.UserPreferencesDirector
 class User internal constructor(
   private val userQuery: UserQuery,
   private val storeDirector: InternalStoreDirector,
-  val userPreferences: UserPreferencesDirector,
+  val preferences: UserPreferencesDirector,
   internal val pushSubscription: PushSubscriptionDirector,
 ) {
 

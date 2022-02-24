@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.store.data
 
-import com.harmony.kotlin.data.mapper.Mapper
+import com.mobilejazz.harmony.data.mapper.Mapper
 import com.magicbell.sdk.common.network.graphql.GraphQLRequest
 import com.magicbell.sdk.common.network.graphql.GraphQLRequestEntity
 import kotlinx.serialization.KSerializer

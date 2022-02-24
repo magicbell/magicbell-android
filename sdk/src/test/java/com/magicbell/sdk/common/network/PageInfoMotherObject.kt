@@ -1,6 +1,6 @@
 package com.magicbell.sdk.common.network
 
-import com.harmony.kotlin.common.randomBoolean
+import com.mobilejazz.harmony.common.randomBoolean
 import com.magicbell.sdk.common.network.graphql.PageInfo
 
 internal fun anyPageInfo(): PageInfo {

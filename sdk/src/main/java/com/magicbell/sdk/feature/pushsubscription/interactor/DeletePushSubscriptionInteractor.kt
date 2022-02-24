@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.pushsubscription.interactor
 
-import com.harmony.kotlin.domain.interactor.DeleteInteractor
+import com.mobilejazz.harmony.domain.interactor.DeleteInteractor
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.pushsubscription.data.DeletePushSubscriptionQuery
 import kotlinx.coroutines.withContext

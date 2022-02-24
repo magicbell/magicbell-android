@@ -71,8 +71,10 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     val recyclerView = binding.notificationRv
     val linearLayoutManager = LinearLayoutManager(this)
 
-    val dividerItemDecoration = DividerItemDecoration(recyclerView.context,
-      linearLayoutManager.orientation)
+    val dividerItemDecoration = DividerItemDecoration(
+      recyclerView.context,
+      linearLayoutManager.orientation
+    )
     recyclerView.addItemDecoration(dividerItemDecoration)
 
     recyclerView.layoutManager = linearLayoutManager
@@ -81,8 +83,11 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
         if (!store.hasNextPage) {
           return
         }
+
         store.fetch(onSuccess = {
+
         }, onFailure = {
+
         })
       }
     }
@@ -91,13 +96,13 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
   }
 
   private fun initMagicBell() {
-    user = (application as ExampleApplication).magicBellClient.forUserEmail("john@doe.com")
+    user = (application as ExampleApplication).magicBellClient.connectUserEmail("john@doe.com")
     store = user.store.forAll()
     store.addContentObserver(this)
     store.addCountObserver(this)
   }
 
-  override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+  override fun onCreateOptionsMenu(menu: Menu): Boolean {
     val menuInflater = menuInflater
     menuInflater.inflate(R.menu.notification_menu, menu)
     return true
@@ -113,7 +118,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
           .setView(taskEditText)
           .setPositiveButton("Login") { dialog, which ->
             val email = taskEditText.text.toString()
-            user = (application as ExampleApplication).magicBellClient.forUserEmail(email)
+            user = (application as ExampleApplication).magicBellClient.connectUserEmail(email)
             configureStore(StorePredicate())
           }
           .setNegativeButton("Cancel", null)
@@ -152,7 +157,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     store.removeContentObserver(this)
     store.removeCountObserver(this)
 
-    store = user.store.with(predicate)
+    store = user.store.build(predicate)
 
     store.addContentObserver(this)
     store.addCountObserver(this)

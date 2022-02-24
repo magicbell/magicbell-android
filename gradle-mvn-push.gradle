@@ -1,0 +1,103 @@
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+version = '0.0.2'
+group = 'com.magicbell'
+
+def isReleaseBuild() {
+  return version.contains("SNAPSHOT") == false
+}
+
+def getReleaseRepositoryUrl() {
+  return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
+      : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+}
+
+def getSnapshotRepositoryUrl() {
+  return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
+      : "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+}
+
+def getRepositoryUsername() {
+  return hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
+}
+
+def getRepositoryPassword() {
+  return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
+}
+
+def getGpgKey() {
+  return hasProperty('SIGNING_KEY') ? SIGNING_KEY : ""
+}
+
+def getGpgPassphrase() {
+  return hasProperty('PASSPHRASE') ? PASSPHRASE : ""
+}
+
+def configurePom(pom) {
+  pom.name = 'MagicBell'
+  pom.description = 'Official MagicBell SDK for Android. The notification inbox for your product.'
+  pom.url = 'https://www.magicbell.com/'
+
+  pom.scm {
+    url = 'https://github.com/magicbell-io/magicbell-android.git'
+    connection = 'scm:git@github.com:magicbell-io/magicbell-android.git'
+    developerConnection = 'scm:git@github.com:magicbell-io/magicbell-android.git'
+  }
+
+  pom.licenses {
+    license {
+      name = 'Custom'
+      url = 'https://github.com/magicbell-io/magicbell-android/blob/main/LICENSE'
+      distribution = 'repo'
+    }
+  }
+
+  pom.developers {
+    developer {
+      id = 'magicbell'
+      name = 'MagicBell'
+    }
+  }
+}
+
+afterEvaluate { project ->
+  publishing {
+
+    repositories {
+      maven {
+        def releasesRepoUrl = getReleaseRepositoryUrl()
+        def snapshotsRepoUrl = getSnapshotRepositoryUrl()
+        url = isReleaseBuild() ? releasesRepoUrl : snapshotsRepoUrl
+
+        credentials(PasswordCredentials) {
+          username = getRepositoryUsername()
+          password = getRepositoryPassword()
+        }
+      }
+    }
+  }
+
+  task javadocJar(type: Jar) {
+    archiveClassifier.set("javadoc")
+  }
+
+  publishing.publications.all { publication ->
+    publication.groupId = group
+    publication.version = version
+
+    artifact(javadocJar) // TODO include real documentation
+
+    configurePom(publication.pom)
+  }
+
+  signing {
+    required { isReleaseBuild() }
+    def gpgKey = getGpgKey()
+    def gpgPassphrase = getGpgPassphrase()
+    if (!gpgKey.isEmpty() && !gpgPassphrase.isEmpty()) {
+      useInMemoryPgpKeys(gpgKey, gpgPassphrase)
+    }
+    sign(publishing.publications)
+  }
+}

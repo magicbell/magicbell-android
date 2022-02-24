@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.store.motherobject
 
-import com.harmony.kotlin.common.randomInt
+import com.mobilejazz.harmony.common.randomInt
 import com.magicbell.sdk.common.network.anyNotificationEdgeArray
 import com.magicbell.sdk.common.network.anyPageInfo
 import com.magicbell.sdk.common.network.graphql.Edge

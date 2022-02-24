@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.notification.interactor
 
-import com.harmony.kotlin.domain.interactor.GetInteractor
+import com.mobilejazz.harmony.domain.interactor.GetInteractor
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.notification.Notification
 import com.magicbell.sdk.feature.notification.data.NotificationQuery

@@ -6,7 +6,7 @@ dependencyResolutionManagement {
     jcenter() // Warning: this repository is going to shut down soon
   }
 }
-rootProject.name = "Example"
+rootProject.name = "magicbell-android"
 include ':example'
 include ':sdk'
 include ':sdk-compose'
