@@ -1,9 +1,9 @@
 package com.magicbell.sdk.feature.pushsubscription
 
-import com.harmony.kotlin.data.datasource.VoidGetDataSource
-import com.harmony.kotlin.data.repository.SingleDataSourceRepository
-import com.harmony.kotlin.domain.interactor.toDeleteInteractor
-import com.harmony.kotlin.domain.interactor.toPutInteractor
+import com.mobilejazz.harmony.data.datasource.VoidGetDataSource
+import com.mobilejazz.harmony.data.repository.SingleDataSourceRepository
+import com.mobilejazz.harmony.domain.interactor.toDeleteInteractor
+import com.mobilejazz.harmony.domain.interactor.toPutInteractor
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.pushsubscription.data.PushSubscriptionEntityToPushSubscriptionMapper

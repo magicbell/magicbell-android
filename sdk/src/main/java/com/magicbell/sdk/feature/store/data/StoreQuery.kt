@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.store.data
 
-import com.harmony.kotlin.data.query.Query
+import com.mobilejazz.harmony.data.query.Query
 import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.network.graphql.GraphQLRepresentable
 import com.magicbell.sdk.common.query.UserQuery

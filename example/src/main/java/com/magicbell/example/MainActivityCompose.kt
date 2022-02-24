@@ -17,9 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.BottomSheetState
-import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -28,10 +25,8 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +59,7 @@ class MainActivityCompose : ComponentActivity() {
   }
 
   private fun initMagicBell() {
-    user = (application as ExampleApplication).magicBellClient.forUserEmail("javier@mobilejazz.com")
+    user = (application as ExampleApplication).magicBellClient.connectUserEmail("javier@mobilejazz.com")
     store = user.store.forAll()
     setContent {
       NotificationStoreScreen(notificationStoreViewModel = NotificationStoreViewModel(store))
@@ -162,11 +157,13 @@ class MainActivityCompose : ComponentActivity() {
 
   @Composable
   private fun NotificationRow(notification: Notification) {
-    Row(modifier = Modifier
-      .fillMaxWidth()
-      .padding(20.dp),
+    Row(
+      modifier = Modifier
+        .fillMaxWidth()
+        .padding(20.dp),
       horizontalArrangement = Arrangement.SpaceBetween,
-      verticalAlignment = Alignment.CenterVertically) {
+      verticalAlignment = Alignment.CenterVertically
+    ) {
       Column(Modifier.weight(0.9f)) {
         Text(
           text = notification.title,
@@ -191,10 +188,11 @@ class MainActivityCompose : ComponentActivity() {
           .weight(0.1f)
       ) {
         if (!notification.isRead) {
-          Box(modifier = Modifier
-            .size(6.dp)
-            .clip(CircleShape)
-            .background(colorResource(id = R.color.primaryColor))
+          Box(
+            modifier = Modifier
+              .size(6.dp)
+              .clip(CircleShape)
+              .background(colorResource(id = R.color.primaryColor))
           )
         }
       }

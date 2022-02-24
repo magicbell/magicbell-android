@@ -1,6 +1,6 @@
 package com.magicbell.sdk.common.query
 
-import com.harmony.kotlin.data.query.KeyQuery
+import com.mobilejazz.harmony.data.query.KeyQuery
 
 internal class UserQuery private constructor(
   val externalId: String? = null,

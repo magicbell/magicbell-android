@@ -1,7 +1,7 @@
 package com.magicbell.sdk.feature.notification.motherobject
 
-import com.harmony.kotlin.common.randomBoolean
-import com.harmony.kotlin.common.randomString
+import com.mobilejazz.harmony.common.randomBoolean
+import com.mobilejazz.harmony.common.randomString
 import com.magicbell.sdk.feature.notification.Notification
 import com.magicbell.sdk.feature.store.StorePredicate
 import java.util.Date

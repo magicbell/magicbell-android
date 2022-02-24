@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.store.interactor
 
-import com.harmony.kotlin.domain.interactor.GetInteractor
+import com.mobilejazz.harmony.domain.interactor.GetInteractor
 import com.magicbell.sdk.common.error.MagicBellError
 import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.query.UserQuery

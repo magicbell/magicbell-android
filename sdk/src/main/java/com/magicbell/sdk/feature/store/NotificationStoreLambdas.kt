@@ -2,25 +2,24 @@ package com.magicbell.sdk.feature.store
 
 import com.magicbell.sdk.feature.notification.Notification
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 fun NotificationStore.refresh(
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (List<Notification>) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
   targetScope.launch {
-    withContext(coroutineContext) {
-      refresh()
-    }.onSuccess(onSuccess)
+    refresh()
+      .onSuccess(onSuccess)
       .onFailure(onFailure)
   }
 }
 
 fun NotificationStore.fetch(
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (List<Notification>) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
@@ -34,35 +33,33 @@ fun NotificationStore.fetch(
 
 fun NotificationStore.delete(
   notification: Notification,
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onCompletion: (Unit) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
   targetScope.launch {
-    withContext(coroutineContext) {
-      delete(notification)
-    }.onSuccess(onCompletion)
+    delete(notification)
+      .onSuccess(onCompletion)
       .onFailure(onFailure)
   }
 }
 
 fun NotificationStore.markAsRead(
   notification: Notification,
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (Notification) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
-  targetScope.launch {
-    withContext(coroutineContext) {
-      markAsRead(notification)
-    }.onSuccess(onSuccess)
+  runBlocking {
+    markAsRead(notification)
+      .onSuccess(onSuccess)
       .onFailure(onFailure)
   }
 }
 
 fun NotificationStore.markAsUnread(
   notification: Notification,
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (Notification) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
@@ -76,7 +73,7 @@ fun NotificationStore.markAsUnread(
 
 fun NotificationStore.archive(
   notification: Notification,
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (Notification) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
@@ -90,7 +87,7 @@ fun NotificationStore.archive(
 
 fun NotificationStore.unarchive(
   notification: Notification,
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (Notification) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
@@ -103,7 +100,7 @@ fun NotificationStore.unarchive(
 }
 
 fun NotificationStore.markAllNotificationAsRead(
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (Unit) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
@@ -116,7 +113,7 @@ fun NotificationStore.markAllNotificationAsRead(
 }
 
 fun NotificationStore.markAllNotificationAsSeen(
-  targetScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (Unit) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {

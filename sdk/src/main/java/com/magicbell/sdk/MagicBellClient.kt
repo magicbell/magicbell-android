@@ -20,12 +20,13 @@ import java.net.URL
  * @param context The application context
  */
 class MagicBellClient(
-  apiKey: String,
-  apiSecret: String? = null,
-  enableHMAC: Boolean = false,
-  baseURL: URL = defaultBaseUrl,
-  logLevel: LogLevel = LogLevel.NONE,
-  context: Context,
+  private val apiKey: String,
+  private val apiSecret: String? = null,
+  private val enableHMAC: Boolean = false,
+  private val baseURL: URL = defaultBaseUrl,
+  private val logLevel: LogLevel = LogLevel.NONE,
+  private val magicBellScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
+  private val context: Context,
 ) {
 
   companion object {
@@ -41,7 +42,8 @@ class MagicBellClient(
     sdkComponent = DefaultSDKModule(
       Environment(apiKey, apiSecret, baseURL, enableHMAC),
       logLevel,
-      context
+      context,
+      magicBellScope
     )
   }
 
@@ -51,7 +53,7 @@ class MagicBellClient(
    * @param email The user's email.
    * @return A instance of User.
    */
-  fun forUserEmail(email: String): User {
+  fun connectUserEmail(email: String): User {
     val userQuery = UserQuery.createEmail(email)
     return getUser(userQuery)
   }
@@ -62,7 +64,7 @@ class MagicBellClient(
    * @param externalId The user's external id.
    * @return A instance of User.
    */
-  fun forUserExternalId(externalId: String): User {
+  fun connectUserExternalId(externalId: String): User {
     val userQuery = UserQuery.createExternalId(externalId)
     return getUser(userQuery)
   }
@@ -74,7 +76,7 @@ class MagicBellClient(
    * @param email The user's email.
    * @return A instance of User.
    */
-  fun forUser(externalId: String, email: String): User {
+  fun connectUserWith(email: String, externalId: String): User {
     val userQuery = UserQuery.create(externalId, email)
     return getUser(userQuery)
   }
@@ -84,7 +86,7 @@ class MagicBellClient(
    *
    * @param email The user's email.
    */
-  fun removeUserForEmail(email: String) {
+  fun disconnectUserEmail(email: String) {
     val userQuery = UserQuery.createEmail(email)
     return removeUser(userQuery)
   }
@@ -94,7 +96,7 @@ class MagicBellClient(
    *
    * @param externalId The user's external id.
    */
-  fun removeUserForExternalId(externalId: String) {
+  fun disconnectUserExternalId(externalId: String) {
     val userQuery = UserQuery.createExternalId(externalId)
     return removeUser(userQuery)
   }
@@ -105,7 +107,7 @@ class MagicBellClient(
    * @param externalId The user's email.
    * @param email The user's email.
    */
-  fun removeUserFor(externalId: String, email: String) {
+  fun disconnectUserWith(email: String, externalId: String) {
     val userQuery = UserQuery.create(externalId, email)
     return removeUser(userQuery)
   }
@@ -118,7 +120,7 @@ class MagicBellClient(
   fun setDeviceToken(deviceToken: String) {
     this.deviceToken = deviceToken
     users.values.forEach { user ->
-      CoroutineScope(Dispatchers.IO).launch {
+      magicBellScope.launch {
         user.pushSubscription.sendPushSubscription(deviceToken)
       }
     }
@@ -136,7 +138,7 @@ class MagicBellClient(
 
     users[userQuery.key] = user
     deviceToken?.also { deviceToken ->
-      CoroutineScope(Dispatchers.IO).launch {
+      magicBellScope.launch {
         user.pushSubscription.sendPushSubscription(deviceToken)
       }
     }
@@ -146,7 +148,7 @@ class MagicBellClient(
 
   private fun removeUser(userQuery: UserQuery) {
     users[userQuery.key]?.also { user ->
-      CoroutineScope(Dispatchers.IO).launch {
+      magicBellScope.launch {
         user.logout(deviceToken)
         users.remove(userQuery.key)
       }

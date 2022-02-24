@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.pushsubscription.interactor
 
-import com.harmony.kotlin.domain.interactor.PutInteractor
+import com.mobilejazz.harmony.domain.interactor.PutInteractor
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.pushsubscription.PushSubscription
 import com.magicbell.sdk.feature.pushsubscription.data.RegisterPushSubscriptionQuery

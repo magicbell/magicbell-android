@@ -25,6 +25,7 @@ import io.kotest.matchers.shouldNotBe
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.delay
@@ -43,7 +44,7 @@ internal class NotificationStoreRealTimeTests {
   private val anyIndexForDefaultEdgeArraySize by lazy { Random.nextInt(0, defaultEdgeArraySize) }
 
   private val userQuery = UserQuery.createEmail("javier@mobilejazz.com")
-  val coroutineContext = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
+  private val coroutineContext = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
   private val mainThread = object : MainThread {
     override fun post(run: () -> Unit) {
       run()
@@ -77,6 +78,7 @@ internal class NotificationStoreRealTimeTests {
     storeDirector = RealTimeByPredicateStoreDirector(
       userQuery,
       coroutineContext,
+      CoroutineScope(mainThreadSurrogate),
       mainThread,
       fetchStorePageInteractor,
       actionNotificationInteractor,
@@ -86,7 +88,7 @@ internal class NotificationStoreRealTimeTests {
       storeRealTime
     )
 
-    return storeDirector.with(predicate)
+    return storeDirector.build(predicate)
   }
 
   private val mainThreadSurrogate = newSingleThreadContext("UI thread")

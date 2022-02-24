@@ -1,8 +1,8 @@
 package com.magicbell.sdk.feature.config.data
 
-import com.harmony.kotlin.data.datasource.GetDataSource
-import com.harmony.kotlin.data.error.QueryNotSupportedException
-import com.harmony.kotlin.data.query.Query
+import com.mobilejazz.harmony.data.datasource.GetDataSource
+import com.mobilejazz.harmony.data.error.QueryNotSupportedException
+import com.mobilejazz.harmony.data.query.Query
 import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.network.StringToEntityMapper

@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.notification.data
 
-import com.harmony.kotlin.data.mapper.Mapper
+import com.mobilejazz.harmony.data.mapper.Mapper
 import com.magicbell.sdk.feature.notification.Notification
 import com.magicbell.sdk.feature.notification.NotificationEntity
 import kotlinx.serialization.KSerializer

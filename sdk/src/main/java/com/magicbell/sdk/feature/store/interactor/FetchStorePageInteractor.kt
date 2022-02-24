@@ -4,8 +4,10 @@ import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.store.StorePage
 import com.magicbell.sdk.feature.store.StorePredicate
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 internal interface FetchStorePageInteractor {
   suspend operator fun invoke(
@@ -16,7 +18,7 @@ internal interface FetchStorePageInteractor {
 }
 
 internal class FetchStorePageDefaultInteractor(
-  private val coroutineContext: CoroutineContext,
+  private val interactorCoroutineContext: CoroutineContext,
   private val getStorePagesInteractor: GetStorePagesInteractor,
 ) : FetchStorePageInteractor {
 
@@ -25,7 +27,7 @@ internal class FetchStorePageDefaultInteractor(
     cursorPredicate: CursorPredicate,
     userQuery: UserQuery,
   ): StorePage {
-    return withContext(coroutineContext) {
+    return withContext(interactorCoroutineContext) {
       getStorePagesInteractor(storePredicate, cursorPredicate, userQuery)
     }
   }

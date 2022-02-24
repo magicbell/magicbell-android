@@ -27,13 +27,19 @@ import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.mockk.InternalPlatformDsl.toArray
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.newSingleThreadContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.concurrent.Executors
 import kotlin.random.Random
@@ -49,13 +55,26 @@ internal class NotificationStoreTests {
       run()
     }
   }
-  val coroutineContext = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
+  private val coroutineContext = Executors.newFixedThreadPool(1).asCoroutineDispatcher()
 
   var fetchStorePageInteractor: FetchStorePageInteractor = mockk()
   var actionNotificationInteractor: ActionNotificationInteractor = mockk()
   var deleteNotificationInteractor: DeleteNotificationInteractor = mockk()
 
   lateinit var notificationStore: NotificationStore
+
+  private val mainThreadSurrogate = newSingleThreadContext("UI thread")
+
+  @BeforeEach
+  fun setUp() {
+    Dispatchers.setMain(mainThreadSurrogate)
+  }
+
+  @AfterEach
+  fun tearDown() {
+    Dispatchers.resetMain() // reset the main dispatcher to the original Main dispatcher
+    mainThreadSurrogate.close()
+  }
 
   private fun createNotificationStore(
     predicate: StorePredicate,
@@ -70,6 +89,7 @@ internal class NotificationStoreTests {
     notificationStore = NotificationStore(
       predicate,
       coroutineContext,
+      CoroutineScope(mainThreadSurrogate),
       mainThread,
       userQuery,
       fetchStorePageInteractor,

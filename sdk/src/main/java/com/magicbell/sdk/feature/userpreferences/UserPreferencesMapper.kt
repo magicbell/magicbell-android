@@ -1,6 +1,6 @@
 package com.magicbell.sdk.feature.userpreferences
 
-import com.harmony.kotlin.data.mapper.Mapper
+import com.mobilejazz.harmony.data.mapper.Mapper
 import com.magicbell.sdk.feature.userpreferences.data.PreferencesEntity
 import com.magicbell.sdk.feature.userpreferences.data.UserPreferencesEntity
 

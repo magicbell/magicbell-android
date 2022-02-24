@@ -1,10 +1,10 @@
 package com.magicbell.sdk.feature.userpreferences
 
-import com.harmony.kotlin.data.datasource.VoidDeleteDataSource
-import com.harmony.kotlin.data.repository.RepositoryMapper
-import com.harmony.kotlin.data.repository.SingleDataSourceRepository
-import com.harmony.kotlin.domain.interactor.toGetInteractor
-import com.harmony.kotlin.domain.interactor.toPutInteractor
+import com.mobilejazz.harmony.data.datasource.VoidDeleteDataSource
+import com.mobilejazz.harmony.data.repository.RepositoryMapper
+import com.mobilejazz.harmony.data.repository.SingleDataSourceRepository
+import com.mobilejazz.harmony.domain.interactor.toGetInteractor
+import com.mobilejazz.harmony.domain.interactor.toPutInteractor
 import com.magicbell.sdk.common.network.HttpClient
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.userpreferences.data.UserPreferencesContainerEntity
