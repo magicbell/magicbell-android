@@ -49,8 +49,8 @@ dependencies {
   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0'
 
   // MagicBell
-  implementation 'com.magicbell:magicbell-sdk:0.0.2'
-  implementation 'com.magicbell:magicbell-sdk-compose:0.0.2'
+  implementation 'com.magicbell:magicbell-sdk:1.0.0'
+  implementation 'com.magicbell:magicbell-sdk-compose:1.0.0'
 
   // Compose
   implementation 'androidx.activity:activity-compose:1.4.0'

@@ -71,6 +71,14 @@ This repo also contains a full blown example. To run the project:
 
 ### Gradle
 
+Add the dependency in your build.gradle file.
+```groovy
+  // MagicBell SDK
+  implementation 'com.magicbell:magicbell-sdk:1.0.0'
+  // MagicBell Compose
+  implementation 'com.magicbell:magicbell-sdk-compose:1.0.0'
+```
+
 ## The MagicBell Client
 
 The first step is to create a `MagicBellClient` instance. It will manage users and other functionality for you. The API key for your MagicBell project is
