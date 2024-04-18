@@ -13,16 +13,12 @@ import java.net.URL
  * Public MagicBell SDK interface
  *
  * @param apiKey The API Key of your account.
- * @param apiSecret The API Secret of your account.
- * @param enableHMAC Enables HMAC authentication. Default to false. If set to true, HMAC will be only enabled if api secret is provided.
  * @param baseURL The base url of the api server. Default to `MagicBell.defaultBaseUrl`.
  * @param logLevel The log level accepts none or debug. Default to none.
  * @param context The application context
  */
 class MagicBellClient(
   private val apiKey: String,
-  private val apiSecret: String? = null,
-  private val enableHMAC: Boolean = false,
   private val baseURL: URL = defaultBaseUrl,
   private val logLevel: LogLevel = LogLevel.NONE,
   private val magicBellScope: CoroutineScope = CoroutineScope(Dispatchers.Main),
@@ -40,7 +36,7 @@ class MagicBellClient(
 
   init {
     sdkComponent = DefaultSDKModule(
-      Environment(apiKey, apiSecret, baseURL, enableHMAC),
+      Environment(apiKey, baseURL),
       logLevel,
       context,
       magicBellScope
@@ -61,6 +57,18 @@ class MagicBellClient(
   /**
    * Creates or retrieve an existing user.
    *
+   * @param email The user's email.
+   * @param hmac An hmac, authenticating the user.
+   * @return A instance of User.
+   */
+  fun connectUserEmailHmac(email: String, hmac: String): User {
+    val userQuery = UserQuery.createEmailHmac(email, hmac)
+    return getUser(userQuery)
+  }
+
+  /**
+   * Creates or retrieve an existing user.
+   *
    * @param externalId The user's external id.
    * @return A instance of User.
    */
@@ -73,11 +81,36 @@ class MagicBellClient(
    * Creates or retrieve an existing user.
    *
    * @param externalId The user's external id.
+   * @param hmac An hmac, authenticating the user.
+   * @return A instance of User.
+   */
+  fun connectUserExternalIdHmac(externalId: String, hmac: String): User {
+    val userQuery = UserQuery.createExternalIdHmac(externalId, hmac)
+    return getUser(userQuery)
+  }
+
+  /**
+   * Creates or retrieve an existing user.
+   *
+   * @param externalId The user's external id.
    * @param email The user's email.
    * @return A instance of User.
    */
   fun connectUserWith(email: String, externalId: String): User {
     val userQuery = UserQuery.create(externalId, email)
+    return getUser(userQuery)
+  }
+
+  /**
+   * Creates or retrieve an existing user.
+   *
+   * @param externalId The user's external id.
+   * @param email The user's email.
+   * @param hmac An hmac, authenticating the user.
+   * @return A instance of User.
+   */
+  fun connectUserHmac(email: String, externalId: String, hmac: String): User {
+    val userQuery = UserQuery.createHmac(externalId, email, hmac)
     return getUser(userQuery)
   }
 

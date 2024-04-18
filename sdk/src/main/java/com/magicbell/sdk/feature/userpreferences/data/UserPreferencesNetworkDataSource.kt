@@ -21,7 +21,8 @@ internal class UserPreferencesNetworkDataSource(
         val request = httpClient.prepareRequest(
           "notification_preferences",
           query.externalId,
-          query.email
+          query.email,
+          query.hmac
         )
 
         httpClient.performRequest(request)?.let {
@@ -47,6 +48,7 @@ internal class UserPreferencesNetworkDataSource(
           "/notification_preferences",
           query.externalId,
           query.email,
+          query.hmac,
           HttpClient.HttpMethod.Put(inMapper.map(userPreferencesEntity)),
         )
 
