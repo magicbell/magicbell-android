@@ -111,6 +111,7 @@ internal class AblyConnector(
         ConnectionState.connecting,
         ConnectionState.closing,
         ConnectionState.failed,
+        null
         -> {
           // Do nothing
         }
