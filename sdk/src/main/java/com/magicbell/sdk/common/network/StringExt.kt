@@ -6,7 +6,7 @@ import java.security.NoSuchAlgorithmException
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-fun String.hmac(key: String): String {
+internal fun String.hmac(key: String): String {
     try {
         val secretKeySpec = SecretKeySpec(key.toByteArray(charset("UTF-8")), "HmacSHA256")
         val mac = Mac.getInstance("HmacSHA256")
