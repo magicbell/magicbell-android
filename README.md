@@ -96,8 +96,6 @@ You can provide additional options when initializing a client:
 ```kotlin
 val magicbell = MagicBellClient(
   apiKey = "[MAGICBELL_API_KEY]",
-  apiSecret = "[MAGICBELL_SECRET_KEY]",
-  enableHMAC = false,
   baseURL = defaultBaseUrl,
   logLevel = LogLevel.NONE,
   context = applicationContext,
@@ -108,8 +106,6 @@ val magicbell = MagicBellClient(
 | Param        | Default Value | Description                                                                                  |
 | ------------ | ------------- | -------------------------------------------------------------------------------------------- |
 | `apiKey`     | -             | Your MagicBell's API key                                                                     |
-| `apiSecret`  | `nil`         | Your MagicBell's API secret                                                                  |
-| `enableHMAC` | `false`       | Set it to `true` if you want HMAC enabled. Note the `apiSecret` is required if set to `true` |
 | `logLevel`   | `.none`       | Set it to `.debug` to enable logs                                                            |
 | `context`    | -             | Application Context                                                                                 |
 | `logLevel`   | `Dispatchers(Main)` | Scope to run all the tasks.                                              |
@@ -145,6 +141,8 @@ val user = magicbell.connectUserExternalId("001")
 // Identify the user by both, email and external id
 val user = magicbell.connectUserWith(email = "richard@example.com", externalId = "0001")
 ```
+
+Each variant of `connectUser` supports a variant for passing an `hmac` parameter that should be send when HMAC Security was enabled for the project.
 
 You can connect as [many users as you need](#multi-user-support).
 
