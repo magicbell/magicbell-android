@@ -1,9 +1,9 @@
-package com.magicbell.sdk.feature.userpreferences
+package com.magicbell.sdk.feature.notificationpreferences
 
 /**
- * The user preferences
+ * The notification preferences
  */
-class UserPreferences(
+class NotificationPreferences(
   val preferences: Map<String, Preferences>
 )
 

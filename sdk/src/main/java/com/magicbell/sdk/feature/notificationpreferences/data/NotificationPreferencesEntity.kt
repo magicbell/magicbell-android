@@ -1,16 +1,16 @@
-package com.magicbell.sdk.feature.userpreferences.data
+package com.magicbell.sdk.feature.notificationpreferences.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-internal data class UserPreferencesContainerEntity(
+internal data class NotificationPreferencesContainerEntity(
   @SerialName("notification_preferences")
-  val userPreferencesEntity: UserPreferencesEntity,
+  val notificationPreferencesEntity: NotificationPreferencesEntity,
 )
 
 @Serializable
-internal data class UserPreferencesEntity(
+internal data class NotificationPreferencesEntity(
   @SerialName("categories")
   val preferences: Map<String, PreferencesEntity>?,
 )

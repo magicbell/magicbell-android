@@ -1,4 +1,4 @@
-package com.magicbell.sdk.feature.userpreferences.data
+package com.magicbell.sdk.feature.notificationpreferences.data
 
 import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.error.NetworkException
@@ -9,13 +9,13 @@ import com.mobilejazz.harmony.data.datasource.PutDataSource
 import com.mobilejazz.harmony.data.error.OperationNotAllowedException
 import com.mobilejazz.harmony.data.query.Query
 
-internal class UserPreferencesNetworkDataSource(
+internal class NotificationPreferencesNetworkDataSource(
   private val httpClient: HttpClient,
-  private val inMapper: UserPreferencesEntityToUserPreferencesContainerEntityMapper,
-  private val outMapper: UserPreferencesContainerEntityToUserPreferencesEntityMapper,
-) : GetDataSource<UserPreferencesEntity>, PutDataSource<UserPreferencesEntity> {
+  private val inMapper: NotificationPreferencesEntityToNotificationPreferencesContainerEntityMapper,
+  private val outMapper: NotificationPreferencesContainerEntityToNotificationPreferencesEntityMapper,
+) : GetDataSource<NotificationPreferencesEntity>, PutDataSource<NotificationPreferencesEntity> {
 
-  override suspend fun get(query: Query): UserPreferencesEntity {
+  override suspend fun get(query: Query): NotificationPreferencesEntity {
     return when (query) {
       is UserQuery -> {
         val request = httpClient.prepareRequest(
@@ -28,7 +28,7 @@ internal class UserPreferencesNetworkDataSource(
         httpClient.performRequest(request)?.let {
           outMapper.map(it)
         } ?: run {
-          throw MappingException(UserPreferencesEntity::class.java.name)
+          throw MappingException(NotificationPreferencesEntity::class.java.name)
         }
       }
       else -> {
@@ -37,25 +37,25 @@ internal class UserPreferencesNetworkDataSource(
     }
   }
 
-  override suspend fun getAll(query: Query): List<UserPreferencesEntity> = throw NotImplementedError()
+  override suspend fun getAll(query: Query): List<NotificationPreferencesEntity> = throw NotImplementedError()
 
-  override suspend fun put(query: Query, value: UserPreferencesEntity?): UserPreferencesEntity {
+  override suspend fun put(query: Query, value: NotificationPreferencesEntity?): NotificationPreferencesEntity {
     return when (query) {
       is UserQuery -> {
-        val userPreferencesEntity = value ?: throw NetworkException(-1, "Value cannot be null")
+        val notificationPreferencesEntity = value ?: throw NetworkException(-1, "Value cannot be null")
 
         val request = httpClient.prepareRequest(
           "/notification_preferences",
           query.externalId,
           query.email,
           query.hmac,
-          HttpClient.HttpMethod.Put(inMapper.map(userPreferencesEntity)),
+          HttpClient.HttpMethod.Put(inMapper.map(notificationPreferencesEntity)),
         )
 
         httpClient.performRequest(request)?.let {
           outMapper.map(it)
         } ?: run {
-          throw MappingException(UserPreferencesEntity::class.java.name)
+          throw MappingException(NotificationPreferencesEntity::class.java.name)
         }
       }
       else -> {
@@ -64,5 +64,5 @@ internal class UserPreferencesNetworkDataSource(
     }
   }
 
-  override suspend fun putAll(query: Query, value: List<UserPreferencesEntity>?): List<UserPreferencesEntity> = throw NotImplementedError()
+  override suspend fun putAll(query: Query, value: List<NotificationPreferencesEntity>?): List<NotificationPreferencesEntity> = throw NotImplementedError()
 }

@@ -63,7 +63,7 @@ This repo also contains a full blown example. To run the project:
     - [Obtaining a NotificationStore](#obtaining-a-notification-store)
     - [Observing NotificationStore changes](#observing-notification-store-changes)
     - [Notification Store adapter](#notification-store-adapter)
-- [User Preferences](#user-preferences)
+- [Notification Preferences](#notification-preferences)
 - [Push Notification Support](#push-notifications)
 - [Contributing](#contributing)
 
@@ -509,9 +509,9 @@ class NotificationsAdapter(
 
 Another option would be to have your own list of notifications and modify it everytime that the user does an action.
 
-## User Preferences
+## Notification Preferences
 
-You can fetch and set user preferences for MagicBell channels and categories.
+You can fetch and set notification preferences for MagicBell channels and categories.
 
 ```kotlin
 class Preferences {
@@ -521,15 +521,15 @@ class Preferences {
   var webPush: Bool
 }
 
-class UserPreferences {
+class NotificationPreferences {
   val preferences: Map<String, Preferences>
 }
 ```
 
-To fetch user preferences, use the `fetch` method as follows:
+To fetch notification preferences, use the `fetch` method as follows:
 
 ```kotlin
-user.preferences.fetch().fold(onSuccess = { userPreferences ->
+user.preferences.fetch().fold(onSuccess = { notificationPreferences ->
   println(preferences)
 }, onFailure = {
   // An error occurred

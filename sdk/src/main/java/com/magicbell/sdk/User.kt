@@ -4,12 +4,12 @@ import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionDirector
 import com.magicbell.sdk.feature.store.InternalStoreDirector
 import com.magicbell.sdk.feature.store.StoreDirector
-import com.magicbell.sdk.feature.userpreferences.UserPreferencesDirector
+import com.magicbell.sdk.feature.notificationpreferences.NotificationPreferencesDirector
 
 class User internal constructor(
   private val userQuery: UserQuery,
   private val storeDirector: InternalStoreDirector,
-  val preferences: UserPreferencesDirector,
+  val preferences: NotificationPreferencesDirector,
   internal val pushSubscription: PushSubscriptionDirector,
 ) {
 
