@@ -11,17 +11,19 @@ internal data class NotificationPreferencesContainerEntity(
 
 @Serializable
 internal data class NotificationPreferencesEntity(
-  @SerialName("categories")
-  val preferences: Map<String, PreferencesEntity>?,
+  val categories: List<CategoryEntity>,
 )
 
 @Serializable
-internal class PreferencesEntity(
-  var email: Boolean,
-  @SerialName("in_app")
-  var inApp: Boolean,
-  @SerialName("mobile_push")
-  var mobilePush: Boolean,
-  @SerialName("web_push")
-  var webPush: Boolean,
+internal class CategoryEntity(
+  var slug: String,
+  var label: String,
+  var channels: List<ChannelEntity>,
+)
+
+@Serializable
+internal class ChannelEntity(
+  var slug: String,
+  var label: String,
+  var enabled: Boolean,
 )

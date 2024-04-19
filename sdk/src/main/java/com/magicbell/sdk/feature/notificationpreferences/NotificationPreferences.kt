@@ -1,18 +1,26 @@
 package com.magicbell.sdk.feature.notificationpreferences
 
 /**
- * The notification preferences
+ * The notification preferences object containing all categories
  */
 class NotificationPreferences(
-  val preferences: Map<String, Preferences>
+  val categories: List<Category>
 )
 
 /**
- * The preferences of notifications
+ * The category with its notification channels
  */
-class Preferences(
-  var email: Boolean,
-  var inApp: Boolean,
-  var mobilePush: Boolean,
-  var webPush: Boolean,
+class Category(
+  val slug: String,
+  val label: String,
+  val channels: List<Channel>
+)
+
+/**
+ * The notification channel and its status
+ */
+class Channel(
+  val slug: String,
+  val label: String,
+  val enabled: Boolean
 )
