@@ -22,7 +22,9 @@ internal class NotificationPreferencesNetworkDataSource(
           "notification_preferences",
           query.externalId,
           query.email,
-          query.hmac
+          query.hmac,
+          HttpClient.HttpMethod.Get,
+          arrayOf(Pair("accept-version", "v2"))
         )
 
         httpClient.performRequest(request)?.let {
@@ -45,11 +47,12 @@ internal class NotificationPreferencesNetworkDataSource(
         val notificationPreferencesEntity = value ?: throw NetworkException(-1, "Value cannot be null")
 
         val request = httpClient.prepareRequest(
-          "/notification_preferences",
+          "notification_preferences",
           query.externalId,
           query.email,
           query.hmac,
           HttpClient.HttpMethod.Put(inMapper.map(notificationPreferencesEntity)),
+          arrayOf(Pair("accept-version", "v2"))
         )
 
         httpClient.performRequest(request)?.let {
