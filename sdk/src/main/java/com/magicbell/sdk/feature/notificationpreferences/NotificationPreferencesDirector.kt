@@ -19,6 +19,13 @@ interface NotificationPreferencesDirector {
    * @return A Result with the updated notification preferences
    */
   suspend fun update(notificationPreferences: NotificationPreferences): Result<NotificationPreferences>
+
+  /**
+   * Updates a notification channel, by category and channel slug
+   *
+   * @return A Result with the updated notification preferences (all of them, not just the single channel)
+   */
+  suspend fun updateChannel(categorySlug: String, channelSlug: String, enabled: Boolean): Result<NotificationPreferences>
 }
 
 internal class DefaultNotificationPreferencesDirector(
@@ -36,5 +43,13 @@ internal class DefaultNotificationPreferencesDirector(
     return runCatching {
       updateNotificationPreferencesInteractor(notificationPreferences, userQuery)
     }
+  }
+
+  override suspend fun updateChannel(categorySlug: String, channelSlug: String, enabled: Boolean): Result<NotificationPreferences> {
+    // The label will be ignored when encoding NotificationPreferencesEntity, so we are free to pass an empty string here
+    val dummyLabel = ""
+    val channels = listOf(Channel(channelSlug, dummyLabel, enabled))
+    val categories = listOf(Category(categorySlug, dummyLabel, channels))
+    return update(NotificationPreferences(categories))
   }
 }
