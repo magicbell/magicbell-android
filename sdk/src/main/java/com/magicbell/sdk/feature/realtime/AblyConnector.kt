@@ -1,7 +1,6 @@
 package com.magicbell.sdk.feature.realtime
 
 import com.magicbell.sdk.common.environment.Environment
-import com.magicbell.sdk.common.network.hmac
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.feature.config.Config
 import com.magicbell.sdk.feature.realtime.StoreRealTimeNotificationChange.ARCHIVED
@@ -57,10 +56,9 @@ internal class AblyConnector(
     clientOptions.authUrl = "${environment.baseUrl}/ws/auth"
     clientOptions.authMethod = "POST"
     val headers = generateAblyHeaders(environment.apiKey,
-      environment.apiSecret,
-      environment.isHMACEnabled,
       userQuery.externalId,
-      userQuery.email)
+      userQuery.email,
+      userQuery.hmac)
     clientOptions.authHeaders = headers
     ablyClient = AblyRealtime(clientOptions)
 
@@ -76,21 +74,14 @@ internal class AblyConnector(
 
   private fun generateAblyHeaders(
     apiKey: String,
-    apiSecret: String?,
-    isHMACEnabled: Boolean,
     externalId: String?,
     email: String?,
+    hmac: String?
   ): Array<Param> {
     val headers = mutableListOf(Param("X-MAGICBELL-API-KEY", apiKey))
 
-    if (apiSecret != null && isHMACEnabled) {
-      if (externalId != null) {
-        val hmac = externalId.hmac(apiSecret)
-        headers.add(Param("X-MAGICBELL-USER-HMAC", hmac))
-      } else if (email != null) {
-        val hmac = email.hmac(apiSecret)
-        headers.add(Param("X-MAGICBELL-USER-HMAC", hmac))
-      }
+    hmac?.also {
+      headers.add(Param("X-MAGICBELL-USER-HMAC", it))
     }
 
     externalId?.also {
@@ -120,6 +111,7 @@ internal class AblyConnector(
         ConnectionState.connecting,
         ConnectionState.closing,
         ConnectionState.failed,
+        null
         -> {
           // Do nothing
         }

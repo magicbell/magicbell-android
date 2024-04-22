@@ -18,7 +18,8 @@ internal class NotificationNetworkDataSource(
         val request = httpClient.prepareRequest(
           "notifications/${query.notificationId}",
           query.userQuery.externalId,
-          query.userQuery.email
+          query.userQuery.email,
+          query.userQuery.hmac
         )
 
         return httpClient.performRequest(request)?.let {

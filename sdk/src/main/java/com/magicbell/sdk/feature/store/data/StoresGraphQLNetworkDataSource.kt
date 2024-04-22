@@ -25,9 +25,11 @@ internal class StoresGraphQLNetworkDataSource(
           query
         )
 
-        val request = httpClient.prepareRequest("graphql",
+        val request = httpClient.prepareRequest(
+          "graphql",
           query.userQuery.externalId,
           query.userQuery.email,
+          query.userQuery.hmac,
           HttpClient.HttpMethod.Post(inMapper.map(graphQLRequest))
         )
 

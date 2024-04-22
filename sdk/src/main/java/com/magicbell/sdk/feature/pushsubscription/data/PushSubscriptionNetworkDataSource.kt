@@ -25,6 +25,7 @@ internal class PushSubscriptionNetworkDataSource(
           "/push_subscriptions",
           query.user.externalId,
           query.user.email,
+          query.user.hmac,
           HttpClient.HttpMethod.Post(inMapper.map(pushSubscription)),
         )
 
@@ -47,6 +48,7 @@ internal class PushSubscriptionNetworkDataSource(
           "/push_subscriptions/${query.deviceToken}",
           query.userQuery.externalId,
           query.userQuery.email,
+          query.userQuery.hmac,
           HttpClient.HttpMethod.Delete
         )
 

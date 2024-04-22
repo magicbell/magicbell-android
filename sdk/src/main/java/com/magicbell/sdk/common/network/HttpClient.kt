@@ -13,6 +13,7 @@ internal interface HttpClient {
     path: String,
     externalId: String?,
     email: String?,
+    hmac: String?,
     httpMethod: HttpMethod = HttpMethod.Get
   ): Request
 
@@ -32,13 +33,13 @@ internal class DefaultHttpClient(
   private val json: Json,
 ) : HttpClient {
 
-  override fun prepareRequest(path: String, externalId: String?, email: String?, httpMethod: HttpClient.HttpMethod): Request {
+  override fun prepareRequest(path: String, externalId: String?, email: String?, hmac: String?, httpMethod: HttpClient.HttpMethod): Request {
     val request = Request.Builder()
       .url("${environment.baseUrl}/$path")
       .addHeader("X-MAGICBELL-API-KEY", environment.apiKey)
 
-    if (environment.isHMACEnabled && environment.apiSecret != null) {
-      addHMACHeader(environment.apiSecret, externalId, email, request)
+    hmac?.also {
+      request.addHeader("X-MAGICBELL-USER-HMAC", it)
     }
 
     addExternalIdOrEmailHeader(externalId, email, request)
@@ -46,16 +47,6 @@ internal class DefaultHttpClient(
     request.addHeader("Content-Type", "application/json")
 
     return request.build()
-  }
-
-  private fun addHMACHeader(apiSecret: String, externalId: String?, email: String?, request: Request.Builder) {
-    if (externalId != null) {
-      val hmac = externalId.hmac(apiSecret)
-      request.addHeader("X-MAGICBELL-USER-HMAC", hmac)
-    } else if (email != null) {
-      val hmac = email.hmac(apiSecret)
-      request.addHeader("X-MAGICBELL-USER-HMAC", hmac)
-    }
   }
 
   private fun addExternalIdOrEmailHeader(externalId: String?, email: String?, request: Request.Builder) {

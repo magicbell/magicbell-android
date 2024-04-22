@@ -35,7 +35,13 @@ internal class ActionNotificationNetworkDataSource(
             path += "/seen"
           }
         }
-        val request = httpClient.prepareRequest(path, query.userQuery.externalId, query.userQuery.email, httpMethod)
+        val request = httpClient.prepareRequest(
+          path,
+          query.userQuery.externalId,
+          query.userQuery.email,
+          query.userQuery.hmac,
+          httpMethod
+        )
         httpClient.performRequest(request)
         return
       }
@@ -54,6 +60,7 @@ internal class ActionNotificationNetworkDataSource(
           "notifications/${query.notificationId}",
           query.userQuery.externalId,
           query.userQuery.email,
+          query.userQuery.hmac,
           HttpClient.HttpMethod.Delete
         )
         httpClient.performRequest(request)
