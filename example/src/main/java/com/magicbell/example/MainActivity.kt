@@ -1,17 +1,24 @@
 package com.magicbell.example
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.firebase.messaging.FirebaseMessaging
 import com.magicbell.example.adapter.EndlessRecyclerViewScrollListener
 import com.magicbell.example.adapter.NotificationsAdapter
 import com.magicbell.example.databinding.ActivityMainBinding
@@ -32,6 +39,10 @@ import com.magicbell.sdk.feature.store.markAsRead
 import com.magicbell.sdk.feature.store.markAsUnread
 import com.magicbell.sdk.feature.store.refresh
 import com.magicbell.sdk.feature.store.unarchive
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.ActionListener, NotificationStoreContentObserver, NotificationStoreCountObserver {
 
@@ -65,6 +76,11 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     configRecyclerView()
 
     reloadStore()
+
+    // Only needed on API 33+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      askNotificationPermission()
+    }
   }
 
   private fun configRecyclerView() {
@@ -245,5 +261,45 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
 
   override fun onUnseenCountChanged(count: Int) {
 
+  }
+
+  private fun updateDeviceToken() {
+    val scope = CoroutineScope(Dispatchers.Main)
+    scope.launch {
+      val token = FirebaseMessaging.getInstance().token.await()
+      (application as ExampleApplication).magicBellClient.setDeviceToken(token)
+    }
+  }
+  @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+  private val requestPermissionLauncher = registerForActivityResult(
+    ActivityResultContracts.RequestPermission(),
+  ) { isGranted: Boolean ->
+    if (isGranted) {
+      // FCM SDK (and your app) can post notifications.
+      updateDeviceToken()
+    } else {
+      // TODO: Inform user that that your app will not show notifications.
+    }
+  }
+  @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+  private fun askNotificationPermission() {
+    val permission = Manifest.permission.POST_NOTIFICATIONS
+
+    when {
+      ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED -> {
+        // FCM SDK (and your app) can post notifications.
+        updateDeviceToken()
+      }
+      shouldShowRequestPermissionRationale(permission) -> {
+        // TODO: display an educational UI explaining to the user the features that will be enabled
+        //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+        //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+        //       If the user selects "No thanks," allow the user to continue without notifications.
+      }
+      else -> {
+        // Directly ask for the permission
+        requestPermissionLauncher.launch(permission)
+      }
+    }
   }
 }
