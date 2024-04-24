@@ -22,7 +22,7 @@ internal class FCMTokenNetworkDataSource(
         val fcmToken = value ?: throw NetworkException(-1, "Value cannot be null")
 
         val request = httpClient.prepareRequest(
-          "/push_subscriptions",
+          "channels/mobile_push/fcm/tokens",
           query.user.externalId,
           query.user.email,
           query.user.hmac,
@@ -45,7 +45,7 @@ internal class FCMTokenNetworkDataSource(
     when (query) {
       is DeleteFCMTokenQuery -> {
         val request = httpClient.prepareRequest(
-          "/push_subscriptions/${query.deviceToken}",
+          "channels/mobile_push/fcm/tokens/${query.deviceToken}",
           query.userQuery.externalId,
           query.userQuery.email,
           query.userQuery.hmac,
