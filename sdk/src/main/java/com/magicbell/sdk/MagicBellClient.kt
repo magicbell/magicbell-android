@@ -154,7 +154,7 @@ class MagicBellClient(
     this.deviceToken = deviceToken
     users.values.forEach { user ->
       magicBellScope.launch {
-        user.pushSubscription.sendPushSubscription(deviceToken)
+        user.fcmToken.sendFCMToken(deviceToken)
       }
     }
   }
@@ -166,13 +166,13 @@ class MagicBellClient(
       userQuery,
       sdkComponent.storeComponent().storeDirector(userQuery),
       sdkComponent.userPreferencesComponent().notificationPreferencesDirector(userQuery),
-      sdkComponent.pushSubscriptionComponent().getPushSubscriptionDirector(userQuery)
+      sdkComponent.fcmTokenComponent().getFCMTokenDirector(userQuery)
     )
 
     users[userQuery.key] = user
     deviceToken?.also { deviceToken ->
       magicBellScope.launch {
-        user.pushSubscription.sendPushSubscription(deviceToken)
+        user.fcmToken.sendFCMToken(deviceToken)
       }
     }
 
