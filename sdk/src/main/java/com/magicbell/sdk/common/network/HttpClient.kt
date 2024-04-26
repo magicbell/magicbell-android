@@ -8,13 +8,16 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
+typealias HttpHeaders = Array<HeaderNameAndValue>
+typealias HeaderNameAndValue = Pair<String, String>
 internal interface HttpClient {
   fun prepareRequest(
     path: String,
     externalId: String?,
     email: String?,
     hmac: String?,
-    httpMethod: HttpMethod = HttpMethod.Get
+    httpMethod: HttpMethod = HttpMethod.Get,
+    additionalHeaders: HttpHeaders = emptyArray()
   ): Request
 
   suspend fun performRequest(request: Request): String?
@@ -33,7 +36,7 @@ internal class DefaultHttpClient(
   private val json: Json,
 ) : HttpClient {
 
-  override fun prepareRequest(path: String, externalId: String?, email: String?, hmac: String?, httpMethod: HttpClient.HttpMethod): Request {
+  override fun prepareRequest(path: String, externalId: String?, email: String?, hmac: String?, httpMethod: HttpClient.HttpMethod, additionalHeaders: HttpHeaders): Request {
     val request = Request.Builder()
       .url("${environment.baseUrl}/$path")
       .addHeader("X-MAGICBELL-API-KEY", environment.apiKey)
@@ -45,6 +48,10 @@ internal class DefaultHttpClient(
     addExternalIdOrEmailHeader(externalId, email, request)
     request.method(httpMethod.name, httpMethod.body?.toRequestBody())
     request.addHeader("Content-Type", "application/json")
+
+    additionalHeaders.forEach {
+      request.addHeader(it.first, it.second)
+    }
 
     return request.build()
   }

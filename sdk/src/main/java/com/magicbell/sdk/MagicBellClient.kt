@@ -165,7 +165,7 @@ class MagicBellClient(
     val user = User(
       userQuery,
       sdkComponent.storeComponent().storeDirector(userQuery),
-      sdkComponent.userPreferencesComponent().userPreferencesDirector(userQuery),
+      sdkComponent.userPreferencesComponent().notificationPreferencesDirector(userQuery),
       sdkComponent.pushSubscriptionComponent().getPushSubscriptionDirector(userQuery)
     )
 

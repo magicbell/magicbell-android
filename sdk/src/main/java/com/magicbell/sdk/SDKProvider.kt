@@ -18,8 +18,8 @@ import com.magicbell.sdk.feature.realtime.DefaultStoreRealTimeModule
 import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
 import com.magicbell.sdk.feature.store.DefaultStoreModule
 import com.magicbell.sdk.feature.store.StoreComponent
-import com.magicbell.sdk.feature.userpreferences.DefaultUserPreferencesModule
-import com.magicbell.sdk.feature.userpreferences.UserPreferencesComponent
+import com.magicbell.sdk.feature.notificationpreferences.DefaultNotificationPreferencesModule
+import com.magicbell.sdk.feature.notificationpreferences.NotificationPreferencesComponent
 import com.mobilejazz.harmony.common.logger.Logger
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -30,7 +30,7 @@ internal interface SDKComponent {
   fun getLogger(): Logger
   fun storeComponent(): StoreComponent
   fun pushSubscriptionComponent(): PushSubscriptionComponent
-  fun userPreferencesComponent(): UserPreferencesComponent
+  fun userPreferencesComponent(): NotificationPreferencesComponent
   fun configComponent(): ConfigComponent
 }
 
@@ -71,8 +71,8 @@ internal class DefaultSDKModule(
       coroutinesComponent.coroutineDispatcher
     )
   }
-  private val userPreferencesComponent: UserPreferencesComponent by lazy {
-    DefaultUserPreferencesModule(
+  private val notificationPreferencesComponent: NotificationPreferencesComponent by lazy {
+    DefaultNotificationPreferencesModule(
       networkComponent.getHttpClient(),
       networkComponent.getJsonSerialization(),
       coroutinesComponent.coroutineDispatcher
@@ -102,7 +102,7 @@ internal class DefaultSDKModule(
 
   override fun pushSubscriptionComponent(): PushSubscriptionComponent = pushSubscriptionComponent
 
-  override fun userPreferencesComponent(): UserPreferencesComponent = userPreferencesComponent
+  override fun userPreferencesComponent(): NotificationPreferencesComponent = notificationPreferencesComponent
 
   override fun configComponent(): ConfigComponent = configComponent
 }

@@ -63,7 +63,7 @@ This repo also contains a full blown example. To run the project:
     - [Obtaining a NotificationStore](#obtaining-a-notification-store)
     - [Observing NotificationStore changes](#observing-notification-store-changes)
     - [Notification Store adapter](#notification-store-adapter)
-- [User Preferences](#user-preferences)
+- [Notification Preferences](#notification-preferences)
 - [Push Notification Support](#push-notifications)
 - [Contributing](#contributing)
 
@@ -507,54 +507,52 @@ class NotificationsAdapter(
 ) : RecyclerView.Adapter<NotificationsAdapter.ViewHolder>()
 ```
 
-Another option would be to have your own list of notifications and modify it everytime that the user does an action.
+Another option would be to have your own list of notifications and modify it every time that the user does an action.
 
-## User Preferences
+## Notification Preferences
 
-You can fetch and set user preferences for MagicBell channels and categories.
+You can fetch and set notification preferences for MagicBell channels and categories.
 
 ```kotlin
-class Preferences {
-  var email: Bool
-  var inApp: Bool
-  var mobilePush: Bool
-  var webPush: Bool
-}
+class NotificationPreferences(
+  val categories: List<Category>
+)
 
-class UserPreferences {
-  val preferences: Map<String, Preferences>
-}
+class Category(
+  val slug: String,
+  val label: String,
+  val channels: List<Channel>
+)
+
+class Channel(
+  val slug: String,
+  val label: String,
+  val enabled: Boolean
+)
 ```
 
-To fetch user preferences, use the `fetch` method as follows:
+To fetch notification preferences, use the `fetch` method as follows:
 
 ```kotlin
-user.preferences.fetch().fold(onSuccess = { userPreferences ->
+user.preferences.fetch().fold(onSuccess = { notificationPreferences ->
   println(preferences)
 }, onFailure = {
   // An error occurred
 })
 ```
 
-It is also possible to fetch preference for a category using the `fetchPreferences(for:)` method:
-
-```kotlin
-user.preferences.fetchPreferences("important").fold(onSuccess = { preferences ->
-  println(preferences)
-}, onFailure = {
-  // An error occurred
-})
-```
-
-To update the preferences, use either `update` or `updatePreferences(:for:)`.
+To update the preferences, use either `update`.
 
 ```kotlin
 // Updating all preferences at once.
-user.preferences.update().getOrElse { }
-
-// Updating the list of preferences for a category
 // Only preference for the included categories will be changed
-user.preferences.update(categoryPreferences, "important").getOrElse { }
+user.preferences.update().getOrElse { }
+```
+
+To update a single channel you can use the provided convenience function `updateChannel`.
+
+```swift
+user.preferences.updateChannel("new_comment", "in_app", true).getOrElse { }
 ```
 
 ## Push Notifications
