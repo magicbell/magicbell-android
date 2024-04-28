@@ -18,11 +18,13 @@ data class Notification(
   val id: String,
   val title: String,
   val content: String? = null,
-  @SerialName("action_url")
+  @SerialName("actionUrl")
+  @JsonNames("action_url")
   val actionURL: String? = null,
   val category: String? = null,
   val topic: String? = null,
-  @SerialName("custom_attributes")
+  @SerialName("customAttributes")
+  @JsonNames("custom_attributes")
   val customAttributes: JsonObject? = null,
   val recipient: Recipient? = null,
   @Serializable(with = DateSerializer::class)
