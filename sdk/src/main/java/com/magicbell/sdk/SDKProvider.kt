@@ -12,8 +12,8 @@ import com.magicbell.sdk.feature.config.ConfigComponent
 import com.magicbell.sdk.feature.config.DefaultConfigModule
 import com.magicbell.sdk.feature.notification.DefaultNotificationModule
 import com.magicbell.sdk.feature.notification.NotificationComponent
-import com.magicbell.sdk.feature.pushsubscription.DefaultPushSubscriptionModule
-import com.magicbell.sdk.feature.pushsubscription.PushSubscriptionComponent
+import com.magicbell.sdk.feature.fcmtoken.DefaultFCMTokenModule
+import com.magicbell.sdk.feature.fcmtoken.FCMTokenComponent
 import com.magicbell.sdk.feature.realtime.DefaultStoreRealTimeModule
 import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
 import com.magicbell.sdk.feature.store.DefaultStoreModule
@@ -29,7 +29,7 @@ import java.util.concurrent.Executors
 internal interface SDKComponent {
   fun getLogger(): Logger
   fun storeComponent(): StoreComponent
-  fun pushSubscriptionComponent(): PushSubscriptionComponent
+  fun fcmTokenComponent(): FCMTokenComponent
   fun userPreferencesComponent(): NotificationPreferencesComponent
   fun configComponent(): ConfigComponent
 }
@@ -64,8 +64,8 @@ internal class DefaultSDKModule(
       coroutinesComponent.coroutineDispatcher
     )
   }
-  private val pushSubscriptionComponent: PushSubscriptionComponent by lazy {
-    DefaultPushSubscriptionModule(
+  private val FCMTokenComponent: FCMTokenComponent by lazy {
+    DefaultFCMTokenModule(
       networkComponent.getHttpClient(),
       networkComponent.getJsonSerialization(),
       coroutinesComponent.coroutineDispatcher
@@ -100,7 +100,7 @@ internal class DefaultSDKModule(
 
   override fun storeComponent(): StoreComponent = storeComponent
 
-  override fun pushSubscriptionComponent(): PushSubscriptionComponent = pushSubscriptionComponent
+  override fun fcmTokenComponent(): FCMTokenComponent = FCMTokenComponent
 
   override fun userPreferencesComponent(): NotificationPreferencesComponent = notificationPreferencesComponent
 

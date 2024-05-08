@@ -1,15 +1,16 @@
 plugins {
   id 'com.android.application'
   id 'kotlin-android'
+  id 'com.google.gms.google-services'
 }
 
 android {
-  compileSdk 31
+  compileSdk 34
 
   defaultConfig {
     applicationId "com.magicbell.example"
     minSdk 23
-    targetSdk 31
+    targetSdk 34
     versionCode 1
     versionName "1.0"
 
@@ -43,6 +44,10 @@ android {
 }
 
 dependencies {
+  // Firebase BoM
+  implementation platform('com.google.firebase:firebase-bom:32.8.1')
+  // Firebase libs (no specific version required)
+  implementation 'com.google.firebase:firebase-messaging'
 
   implementation 'androidx.core:core-ktx:1.7.0'
   implementation 'androidx.appcompat:appcompat:1.4.1'
