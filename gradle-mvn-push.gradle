@@ -40,15 +40,15 @@ def configurePom(pom) {
   pom.url = 'https://www.magicbell.com/'
 
   pom.scm {
-    url = 'https://github.com/magicbell-io/magicbell-android.git'
-    connection = 'scm:git@github.com:magicbell-io/magicbell-android.git'
-    developerConnection = 'scm:git@github.com:magicbell-io/magicbell-android.git'
+    url = 'https://github.com/magicbell/magicbell-android.git'
+    connection = 'scm:git@github.com:magicbell/magicbell-android.git'
+    developerConnection = 'scm:git@github.com:magicbell/magicbell-android.git'
   }
 
   pom.licenses {
     license {
       name = 'Custom'
-      url = 'https://github.com/magicbell-io/magicbell-android/blob/main/LICENSE'
+      url = 'https://github.com/magicbell/magicbell-android/blob/main/LICENSE'
       distribution = 'repo'
     }
   }
