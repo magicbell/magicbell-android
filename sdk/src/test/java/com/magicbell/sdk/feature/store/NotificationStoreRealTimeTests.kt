@@ -235,7 +235,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification("Not exists"))
 
     // THEN
-    coVerify(exactly = 2) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     store.totalCount.shouldBeExactly(initialCounter.totalCount)
     storePage.edges.mapIndexed { index, edge ->
@@ -311,7 +311,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.UnreadNotification("Not exists"))
 
     // THEN
-    coVerify(exactly = 2) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     Unit
   }
@@ -446,7 +446,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.SeenAllNotification)
 
     // THEN
-    coVerify(exactly = 2) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     store.forEach { notification ->
       notification.seenAt.shouldNotBeNull()
