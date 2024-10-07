@@ -74,9 +74,9 @@ This repo also contains a full blown example. To run the project:
 Add the dependency in your build.gradle file.
 ```groovy
   // MagicBell SDK
-  implementation 'com.magicbell:magicbell-sdk:1.0.0'
+  implementation 'com.magicbell:magicbell-sdk:2.0.0'
   // MagicBell Compose
-  implementation 'com.magicbell:magicbell-sdk-compose:1.0.0'
+  implementation 'com.magicbell:magicbell-sdk-compose:2.0.0'
 ```
 
 ## The MagicBell Client
@@ -551,7 +551,7 @@ user.preferences.update().getOrElse { }
 
 To update a single channel you can use the provided convenience function `updateChannel`.
 
-```swift
+```kotlin
 user.preferences.updateChannel("new_comment", "in_app", true).getOrElse { }
 ```
 
