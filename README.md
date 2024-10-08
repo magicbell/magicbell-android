@@ -250,9 +250,9 @@ val unreadNotifications = user.store.build(read = false)
 
 val archivedNotifications = user.store.build(archived = true)
 
-val billingNotifications = user.store.build(categories = ["billing"])
+val billingNotifications = user.store.build(category = "billing")
 
-val firstOrderNotifications = user.store.build(topics = ["order:001"])
+val firstOrderNotifications = user.store.build(topic = "order:001")
 ```
 
 These are the attributes of a notification store:
@@ -328,16 +328,16 @@ These are the available options:
 
 | Param        | Options                            | Default        | Description                    |
 | ------------ | ---------------------------------- | -------------- | ------------------------------ |
-| `read`       | `true`, `false`, `nil` | `nil` | Filter by the `read` state (`nil` means unspecified)    |
-| `seen`       | `true`, `false`, `nil` | `nil` | Filter by the `seen` state (`nil` means unspecified)    |
-| `archived`   | `true`, `false`         | `false`  | Filter by the `archived` state |
-| `categories` | `[String]`                         | `[]`           | Filter by categories          |
-| `topics`     | `[String]`                         | `[]`           | Filter by topics               |
+| `read`       | `true`, `false`, `null`            | `null`         | Filter by the `read` state (`null` means unspecified) |
+| `seen`       | `true`, `false`, `null`            | `null`         | Filter by the `seen` state (`null` means unspecified) |
+| `archived`   | `true`, `false`                    | `false`        | Filter by the `archived` state |
+| `category`   | `String`                           | `null`         | Filter by category             |
+| `topic`      | `String`                           | `null`         | Filter by topic                |
 
 For example, use this predicate to fetch unread notifications of the `"important"` category:
 
 ```kotlin
-val predicate = StorePredicate(read = true, categories = ["important"])
+val predicate = StorePredicate(read = true, category = "important")
 val store = user.store.build(predicate)
 ```
 

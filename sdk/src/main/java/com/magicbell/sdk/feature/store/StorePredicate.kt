@@ -8,15 +8,15 @@ import com.magicbell.sdk.feature.notification.Notification
  * @param read: The read status. Defaults to null, no filter.
  * @param seen: The seen status. Defaults to null, no filter.
  * @param archived: The archived status. Defaults to false, not archived notifications.
- * @param categories: The list of categories. Defaults to empty array.
- * @param topics: The list of topics. Defaults to empty array.
+ * @param category: The category. Defaults to null.
+ * @param topic: The topic. Defaults to null.
  */
 data class StorePredicate(
   val read: Boolean? = null,
   val seen: Boolean? = null,
   val archived: Boolean = false,
-  val categories: List<String> = listOf(),
-  val topics: List<String> = listOf(),
+  val category: String? = null,
+  val topic: String? = null,
 ) : GraphQLRepresentable {
   override val graphQLValue: String
     get() {
@@ -44,12 +44,12 @@ data class StorePredicate(
         storePredicateParams.add("archived: false")
       }
 
-      if (categories.isNotEmpty()) {
-        storePredicateParams.add("categories:[${categories.joinToString(", ") { "\"$it\"" }}]")
+      category?.let {
+        storePredicateParams.add("categories:[$it]")
       }
 
-      if (topics.isNotEmpty()) {
-        storePredicateParams.add("topics:[${categories.joinToString(", ") { "\"$it\"" }}]")
+      topic?.let {
+        storePredicateParams.add("topics:[$it]")
       }
 
       return storePredicateParams.joinToString(", ")
