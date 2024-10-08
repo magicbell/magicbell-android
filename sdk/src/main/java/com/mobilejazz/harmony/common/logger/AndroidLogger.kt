@@ -12,7 +12,7 @@ open class AndroidLogger(private val isDebug: Boolean) : Logger {
   }
 
   override fun log(level: Logger.Level, tag: String?, message: String) {
-    val tag = tag ?: createClassTag()
+    @Suppress("NAME_SHADOWING") val tag = tag ?: createClassTag()
     if (isDebug) {
       when (level) {
         Logger.Level.VERBOSE -> Log.v(tag, message)
@@ -25,7 +25,7 @@ open class AndroidLogger(private val isDebug: Boolean) : Logger {
   }
 
   override fun log(level: Logger.Level, throwable: Throwable, tag: String?, message: String) {
-    val tag = tag ?: createClassTag()
+    @Suppress("NAME_SHADOWING") val tag = tag ?: createClassTag()
     if (isDebug) {
       when (level) {
         Logger.Level.VERBOSE -> Log.v(tag, message, throwable)
