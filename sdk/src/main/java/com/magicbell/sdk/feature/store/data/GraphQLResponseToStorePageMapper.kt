@@ -9,9 +9,9 @@ import kotlinx.serialization.json.Json
 internal class GraphQLResponseToStorePageMapper(
   private val serializer: KSerializer<GraphQLResponse<StorePage>>,
   private val json: Json,
-) : Mapper<String, Map<String, StorePage>> {
-  override fun map(from: String): Map<String, StorePage> {
+) : Mapper<String, StorePage> {
+  override fun map(from: String): StorePage {
     val graphQLResponse = json.decodeFromString(serializer, from)
-    return graphQLResponse.response
+    return graphQLResponse.response.get("data")!!
   }
 }

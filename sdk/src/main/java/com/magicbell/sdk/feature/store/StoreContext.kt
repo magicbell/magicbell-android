@@ -4,7 +4,6 @@ import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.network.graphql.GraphQLRepresentable
 
 internal class StoreContext(
-  val name: String,
   val storePredicate: StorePredicate,
   val cursorPredicate: CursorPredicate,
 ) : GraphQLRepresentable {
@@ -13,6 +12,6 @@ internal class StoreContext(
       val storePredicateString = storePredicate.graphQLValue
       val cursorPredicateString = cursorPredicate.graphQLValue
 
-      return " $name: notifications ($storePredicateString, $cursorPredicateString) { ...notification }"
+      return " data: notifications ($storePredicateString, $cursorPredicateString) { ...notification }"
     }
 }

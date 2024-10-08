@@ -13,7 +13,7 @@ import kotlin.coroutines.CoroutineContext
 
 internal class GetStorePagesInteractor(
   private val coroutineContext: CoroutineContext,
-  private val getStoreNotificationInteractor: GetInteractor<Map<String, StorePage>>,
+  private val getStoreNotificationInteractor: GetInteractor<StorePage>,
 ) {
 
   suspend operator fun invoke(
@@ -21,23 +21,9 @@ internal class GetStorePagesInteractor(
     cursorPredicate: CursorPredicate,
     userQuery: UserQuery,
   ): StorePage {
+    val context = StoreContext(storePredicate, cursorPredicate)
     return withContext(coroutineContext) {
-      val storePages = invoke(listOf(StoreContext("data", storePredicate, cursorPredicate)), userQuery)
-      if (storePages.containsKey("data")) {
-        storePages["data"]!!
-      } else {
-        throw  MagicBellError("Server didn't response correct data")
-      }
+      getStoreNotificationInteractor(StoreQuery(context, userQuery))
     }
   }
-
-  suspend operator fun invoke(
-    contexts: List<StoreContext>,
-    userQuery: UserQuery,
-  ): Map<String, StorePage> {
-    return withContext(coroutineContext) {
-      getStoreNotificationInteractor(StoreQuery(contexts, userQuery))
-    }
-  }
-
 }

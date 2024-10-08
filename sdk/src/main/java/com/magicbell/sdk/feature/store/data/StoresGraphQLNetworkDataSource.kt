@@ -16,8 +16,8 @@ internal class StoresGraphQLNetworkDataSource(
   private val context: Context,
   private val inMapper: GraphQLRequestToGraphQLEntityMapper,
   private val outMapper: GraphQLResponseToStorePageMapper,
-) : GetDataSource<Map<String, StorePage>> {
-  override suspend fun get(query: Query): Map<String, StorePage> {
+) : GetDataSource<StorePage> {
+  override suspend fun get(query: Query): StorePage {
     return when (query) {
       is StoreQuery -> {
         val graphQLRequest = GraphQLRequest(
@@ -43,5 +43,5 @@ internal class StoresGraphQLNetworkDataSource(
     }
   }
 
-  override suspend fun getAll(query: Query): List<Map<String, StorePage>> = throw NotImplementedError()
+  override suspend fun getAll(query: Query): List<StorePage> = throw NotImplementedError()
 }

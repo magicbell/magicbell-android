@@ -8,19 +8,18 @@ import com.magicbell.sdk.feature.store.StoreContext
 import com.magicbell.sdk.feature.store.StorePredicate
 
 internal class StoreQuery(
-  val contexts: List<StoreContext>,
+  val context: StoreContext,
   val userQuery: UserQuery,
 ) : Query(), GraphQLRepresentable {
 
   constructor(
-    name: String,
     storePredicate: StorePredicate,
     cursorPredicate: CursorPredicate,
     userQuery: UserQuery,
-  ) : this(listOf(StoreContext(name, storePredicate, cursorPredicate)), userQuery)
+  ) : this(StoreContext(storePredicate, cursorPredicate), userQuery)
 
   override val graphQLValue: String
     get() {
-      return contexts.joinToString("\n") { it.graphQLValue }
+      return context.graphQLValue
     }
 }
