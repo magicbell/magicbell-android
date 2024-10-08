@@ -85,7 +85,6 @@ internal class DefaultSDKModule(
       coroutinesComponent.coroutineDispatcher,
       coroutineScope,
       MainThreadExecutor(Handler(Looper.getMainLooper())),
-      context,
       notificationComponent,
       storeRealTimeComponent,
       configComponent

@@ -1,8 +1,6 @@
 package com.magicbell.sdk.feature.store
 
 import com.magicbell.sdk.common.error.MagicBellError
-import com.magicbell.sdk.common.network.AnyCursor
-import com.magicbell.sdk.common.network.PageInfoMotherObject
 import com.magicbell.sdk.common.network.anyNotificationEdgeArray
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.common.threading.MainThread
@@ -149,7 +147,7 @@ internal class NotificationStoreTests {
     // THEN
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
-    storePage.edges.map { it.node.id }.shouldBe(store.notifications.map { it.id })
+    storePage.notifications.map { it.id }.shouldBe(store.notifications.map { it.id })
   }
 
   @Test
@@ -226,10 +224,10 @@ internal class NotificationStoreTests {
   fun test_fetch_withPagination_shouldReturnTwoNotificationPages() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = true)
+    val storePage = StoreMotherObject.createHasNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
+    
     val store = createNotificationStore(predicate, Result.success(storePage))
 
     // WHEN
@@ -255,9 +253,8 @@ internal class NotificationStoreTests {
   fun test_fetch_withoutPagination_shouldReturnEmptyArray() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -282,9 +279,8 @@ internal class NotificationStoreTests {
   fun test_refresh_twoTimes_shouldReturnSamePage() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = true)
+    val storePage = StoreMotherObject.createHasNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -294,8 +290,8 @@ internal class NotificationStoreTests {
     // THEN
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
-    storePage.edges.mapIndexed { index, edge ->
-      store[index].id.shouldBe(edge.node.id)
+    storePage.notifications.mapIndexed { index, notif ->
+      store[index].id.shouldBe(notif.id)
     }
 
     // WHEN
@@ -304,8 +300,8 @@ internal class NotificationStoreTests {
     // THEN
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
-    storePage.edges.mapIndexed { index, edge ->
-      store[index].id.shouldBe(edge.node.id)
+    storePage.notifications.mapIndexed { index, notif ->
+      store[index].id.shouldBe(notif.id)
     }
     Unit
   }
@@ -314,9 +310,8 @@ internal class NotificationStoreTests {
   fun test_fetch_withPageInfoHasNextPageTrue_shouldConfigurePaginationTrue() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = true)
+    val storePage = StoreMotherObject.createHasNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
     store.hasNextPage.shouldBeTrue()
@@ -332,16 +327,14 @@ internal class NotificationStoreTests {
   fun test_fetch_withPageInfoHasNextPageFalse_shouldConfigurePaginationFalse() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
     store.hasNextPage.shouldBeTrue()
 
     // WHEN
     store.fetch().getOrThrow()
-
 
     // THEN
     store.hasNextPage.shouldBeFalse()
@@ -351,9 +344,8 @@ internal class NotificationStoreTests {
   fun test_refresh_withPageInfoHasNextPageFalse_shouldConfigurePaginationFalse() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
     store.hasNextPage.shouldBeTrue()
@@ -369,9 +361,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withDefaultStorePredicate_shouldCallActionNotificationInteractor() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
+    val storePage = StoreMotherObject.createNoNextPage(
       anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Read),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
     // WHEN
@@ -389,9 +380,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withError_shouldReturnError() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
+    val storePage = StoreMotherObject.createNoNextPage(
       anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Read),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -421,9 +411,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withDefaultStorePredicateAndReadNotification_shouldRemoveNotificationAndSameUnreadCount() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
+    val storePage = StoreMotherObject.createNoNextPage(
       anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Read),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -449,9 +438,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withDefaultStorePredicateAndUnreadNotification_shouldRemoveNotificationAndDifferentUnreadCount() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Unread),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Unread)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -476,9 +464,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withDefaultStorePredicateAndSeenNotification_shouldRemoveNotificationAndSameUnseenCount() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Seen),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Seen)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -503,9 +490,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withDefaultStorePredicateAndUnseenNotification_shouldRemoveNotificationAndDifferentUnseenCount() = runBlocking {
     // GIVEN
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Unseen),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Unseen)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -530,9 +516,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withReadStorePredicate_shouldRemoveNotification() = runBlocking {
     // GIVEN
     val predicate = StorePredicate(read = true)
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -553,9 +538,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withUnreadStorePredicate_shouldRemoveNotification() = runBlocking {
     // GIVEN
     val predicate = StorePredicate(read = false)
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -578,9 +562,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withUnreadStorePredicateWithUnseenNotifications_shouldRemoveNotificationAndUpdateUnseeCount() = runBlocking {
     // GIVEN
     val predicate = StorePredicate(read = false)
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Unseen),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Unseen)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -603,9 +586,8 @@ internal class NotificationStoreTests {
   fun test_deleteNotification_withUnreadStorePredicateWithSeenNotifications_shouldRemoveNotificationAndSameUnseenCount() = runBlocking {
     // GIVEN
     val predicate = StorePredicate(read = false)
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Seen),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, hasNextPage = false)
+    val storePage = StoreMotherObject.createNoNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.Seen)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
 
@@ -1299,9 +1281,8 @@ internal class NotificationStoreTests {
     // GIVEN
     val contentObserver = ContentObserverMock()
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, true)
+    val storePage = StoreMotherObject.createHasNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
     store.addContentObserver(contentObserver)
@@ -1330,9 +1311,8 @@ internal class NotificationStoreTests {
     // GIVEN
     val contentObserver = ContentObserverMock()
     val predicate = StorePredicate()
-    val storePage = StoreMotherObject.createStorePage(
-      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None),
-      PageInfoMotherObject.createPageInfo(AnyCursor.ANY.value, true)
+    val storePage = StoreMotherObject.createHasNextPage(
+      anyNotificationEdgeArray(predicate, defaultEdgeArraySize, ForceProperty.None)
     )
     val store = createNotificationStore(predicate, Result.success(storePage))
     store.addContentObserver(contentObserver)

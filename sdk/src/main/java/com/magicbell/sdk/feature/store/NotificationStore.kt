@@ -4,7 +4,6 @@ import androidx.annotation.VisibleForTesting
 import com.magicbell.sdk.common.error.MagicBellError
 import com.magicbell.sdk.common.network.graphql.CursorPredicate
 import com.magicbell.sdk.common.network.graphql.CursorPredicate.Cursor.Next
-import com.magicbell.sdk.common.network.graphql.Edge
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.common.threading.MainThread
 import com.magicbell.sdk.feature.notification.Notification
@@ -49,28 +48,28 @@ class NotificationStore internal constructor(
     }
 
     override fun notifyDeleteNotification(id: String) {
-      val notificationIndex = edges.indexOfFirst { it.node.id == id }
+      val notificationIndex = notifications.indexOfFirst { it.id == id }
       if (notificationIndex != -1) {
-        updateCountersWhenDelete(edges[notificationIndex].node, predicate)
-        edges.removeAt(notificationIndex)
+        updateCountersWhenDelete(notifications[notificationIndex], predicate)
+        (notifications as MutableList).removeAt(notificationIndex)
         notifyObserversDeleted(listOf(notificationIndex))
       }
     }
 
     override fun notifyNotificationChange(id: String, change: StoreRealTimeNotificationChange) {
-      val notificationIndex = edges.indexOfFirst { it.node.id == id }
+      val notificationIndex = notifications.indexOfFirst { it.id == id }
       if (notificationIndex != -1) {
-        val notification = edges[notificationIndex].node
+        val notification = notifications[notificationIndex]
         when (change) {
           StoreRealTimeNotificationChange.READ -> markNotificationAsRead(notification, predicate)
           StoreRealTimeNotificationChange.UNREAD -> markNotificationAsUnread(notification, predicate)
           StoreRealTimeNotificationChange.ARCHIVED -> archiveNotification(notification, predicate)
         }
         if (predicate.match(notification)) {
-          edges[notificationIndex].node = notification
+          (notifications as MutableList)[notificationIndex] = notification
           notifyObserversChanged(listOf(notificationIndex))
         } else {
-          edges.removeAt(notificationIndex)
+          (notifications as MutableList).removeAt(notificationIndex)
           notifyObserversDeleted(listOf(notificationIndex))
         }
       } else {
@@ -106,8 +105,6 @@ class NotificationStore internal constructor(
   }
 
   private val pageSize = 20
-
-  private val edges: MutableList<Edge<Notification>> = mutableListOf()
 
   var totalCount: Int = 0
     private set
@@ -182,45 +179,40 @@ class NotificationStore internal constructor(
   }
 
   /**
-   * Number of notifications loaded in the store
-   */
-  val count: Int = edges.count()
-
-  /**
    * Returns a list containing all notifications
    */
-  val notifications: List<Notification>
-    get() {
-      return edges.map {
-        it.node
-      }
-    }
+  val notifications: List<Notification> = mutableListOf()
+
+  /**
+   * Number of notifications loaded in the store
+   */
+  val count: Int = notifications.count()
 
   override val size: Int
     get() {
-      return edges.size
+      return notifications.size
     }
 
   override fun get(index: Int): Notification {
-    return edges[index].node
+    return notifications[index]
   }
 
   override fun contains(element: Notification): Boolean {
-    return edges.firstOrNull { it.node.id == element.id } != null
+    return notifications.firstOrNull { it.id == element.id } != null
   }
 
   override fun containsAll(elements: Collection<Notification>): Boolean = notifications.containsAll(elements)
 
-  override fun isEmpty(): Boolean = edges.isEmpty()
+  override fun isEmpty(): Boolean = notifications.isEmpty()
 
   override fun iterator(): Iterator<Notification> = notifications.iterator()
 
   override fun indexOf(element: Notification): Int {
-    return edges.indexOfFirst { it.node.id == element.id }
+    return notifications.indexOfFirst { it.id == element.id }
   }
 
   override fun lastIndexOf(element: Notification): Int {
-    return edges.indexOfLast { it.node.id == element.id }
+    return notifications.indexOfLast { it.id == element.id }
   }
 
   override fun listIterator(): ListIterator<Notification> = notifications.listIterator()
@@ -228,7 +220,7 @@ class NotificationStore internal constructor(
   override fun listIterator(index: Int): ListIterator<Notification> = notifications.listIterator(index)
 
   override fun subList(fromIndex: Int, toIndex: Int): List<Notification> {
-    return edges.subList(fromIndex, toIndex).map { it.node }
+    return notifications.subList(fromIndex, toIndex)
   }
 
   //region Observers
@@ -333,11 +325,10 @@ class NotificationStore internal constructor(
         clear(false)
         configurePagination(storePage)
         configureCount(storePage)
-        val newEdges = storePage.edges
-        edges.addAll(newEdges)
-        val notifications = newEdges.map { it.node }
+        val newNotifications = storePage.notifications
+        (notifications as MutableList).addAll(newNotifications)
         notifyObserversReloadStore()
-        notifications
+        newNotifications
       }
     }
   }
@@ -364,13 +355,12 @@ class NotificationStore internal constructor(
         configurePagination(storePage)
         configureCount(storePage)
 
-        val oldCount = edges.count()
-        val newEdges = storePage.edges
-        edges.addAll(newEdges)
-        val notifications = newEdges.map { it.node }
-        val indexes = oldCount until edges.size
+        val oldCount = notifications.count()
+        val newNotifications = storePage.notifications
+        (notifications as MutableList).addAll(newNotifications)
+        val indexes = oldCount until notifications.size
         notifyObserversInserted(indexes.toList())
-        notifications
+        newNotifications
       }
     }
   }
@@ -385,10 +375,10 @@ class NotificationStore internal constructor(
     return runCatching {
       withContext(coroutineContext) {
         deleteNotificationInteractor(notification.id, userQuery)
-        val notificationIndex = edges.indexOfFirst { it.node.id == notification.id }
+        val notificationIndex = notifications.indexOfFirst { it.id == notification.id }
         if (notificationIndex != -1) {
-          updateCountersWhenDelete(edges[notificationIndex].node, predicate)
-          edges.removeAt(notificationIndex)
+          updateCountersWhenDelete(notifications[notificationIndex], predicate)
+          (notifications as MutableList).removeAt(notificationIndex)
           notifyObserversDeleted(listOf(notificationIndex))
         }
       }
@@ -488,7 +478,7 @@ class NotificationStore internal constructor(
   //region NotificationActions
   private fun clear(notifyChanges: Boolean) {
     val notificationCount = size
-    edges.clear()
+    (notifications as MutableList).clear()
     setTotalCount(0, notifyChanges)
     setUnreadCount(0, notifyChanges)
     setUnseenCount(0, notifyChanges)
@@ -508,7 +498,7 @@ class NotificationStore internal constructor(
     return runCatching {
       withContext(coroutineContext) {
         actionNotificationInteractor(action, notification.id, userQuery)
-        val notificationIndex = edges.indexOfFirst { it.node.id == notification.id }
+        val notificationIndex = notifications.indexOfFirst { it.id == notification.id }
         if (notificationIndex != -1) {
           modifications(notification)
           notification
@@ -526,17 +516,18 @@ class NotificationStore internal constructor(
     return runCatching {
       withContext(coroutineContext) {
         actionNotificationInteractor(action, userQuery = userQuery)
-        for (i in edges.indices) {
-          modifications(edges[i].node)
+        for (i in notifications.indices) {
+          modifications(notifications[i])
         }
       }
     }
   }
 
   private fun configurePagination(storePage: StorePage) {
-    val pageInfo = storePage.pageInfo
-    nextPageCursor = pageInfo.endCursor
-    setHasNextPage(pageInfo.hasNextPage)
+    // TODO: pagination
+//    val pageInfo = storePage.pageInfo
+//    nextPageCursor = pageInfo.endCursor
+    setHasNextPage(storePage.currentPage < storePage.totalPages)
   }
 
   private fun configureCount(storePage: StorePage) {

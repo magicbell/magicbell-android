@@ -137,8 +137,8 @@ internal class NotificationStoreRealTimeTests {
     // THEN
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
-    storePage.edges.mapIndexed { index, edge ->
-      store[index].id.shouldBe(edge.node.id)
+    storePage.notifications.mapIndexed { index, notif ->
+      store[index].id.shouldBe(notif.id)
     }
     Unit
   }
@@ -238,8 +238,8 @@ internal class NotificationStoreRealTimeTests {
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     store.totalCount.shouldBeExactly(initialCounter.totalCount)
-    storePage.edges.mapIndexed { index, edge ->
-      store[index].id.shouldBe(edge.node.id)
+    storePage.notifications.mapIndexed { index, notif ->
+      store[index].id.shouldBe(notif.id)
     }
     Unit
   }
