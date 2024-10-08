@@ -22,6 +22,7 @@ class DeviceStorageDataSource<T>(
           throw DataNotFoundException()
         }
 
+        @Suppress("UNCHECKED_CAST")
         sharedPreferences.all[key] as T
       }
       else -> notSupportedQuery()
@@ -42,6 +43,7 @@ class DeviceStorageDataSource<T>(
             is Int -> editor.putInt(key, value).apply()
             is Long -> editor.putLong(key, value).apply()
             is Set<*> -> {
+              @Suppress("UNCHECKED_CAST")
               (value as? Set<String>)?.let { castedValue ->
                 editor.putStringSet(key, castedValue).apply()
               } ?: throw UnsupportedOperationException("value type is not supported")

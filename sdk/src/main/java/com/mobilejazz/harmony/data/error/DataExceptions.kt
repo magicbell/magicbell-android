@@ -26,7 +26,7 @@ class DataNotValidException(message: String? = null, cause: Throwable? = null) :
 /**
  * Not authorized to access the data
  */
-class UnauthorizedException(message: String? = null, cause: Throwable, isResolved: Boolean) : DataException(message, cause)
+class UnauthorizedException(message: String? = null, cause: Throwable, @Suppress("UNUSED_PARAMETER") isResolved: Boolean) : DataException(message, cause)
 
 // endregion
 

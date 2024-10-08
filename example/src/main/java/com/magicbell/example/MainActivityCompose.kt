@@ -67,7 +67,7 @@ class MainActivityCompose : ComponentActivity() {
   }
 
   @Composable
-  private fun NotificationStoreScreen(notificationStoreViewModel: NotificationStoreViewModel) {
+  private fun NotificationStoreScreen(@Suppress("UNUSED_PARAMETER") notificationStoreViewModel: NotificationStoreViewModel) {
   }
 
   @Composable
