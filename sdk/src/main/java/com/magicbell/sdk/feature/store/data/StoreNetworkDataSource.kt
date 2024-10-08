@@ -6,31 +6,23 @@ import com.mobilejazz.harmony.data.error.OperationNotAllowedException
 import com.mobilejazz.harmony.data.query.Query
 import com.magicbell.sdk.common.error.MappingException
 import com.magicbell.sdk.common.network.HttpClient
-import com.magicbell.sdk.common.network.graphql.GraphQLFragment
-import com.magicbell.sdk.common.network.graphql.GraphQLRequest
 import com.magicbell.sdk.common.network.graphql.GraphQLResponse
 import com.magicbell.sdk.feature.store.StorePage
 
 internal class StoreNetworkDataSource(
   private val httpClient: HttpClient,
   private val context: Context,
-  private val inMapper: GraphQLRequestToGraphQLEntityMapper,
   private val outMapper: GraphQLResponseToStorePageMapper,
 ) : GetDataSource<StorePage> {
   override suspend fun get(query: Query): StorePage {
     return when (query) {
       is StoreQuery -> {
-        val graphQLRequest = GraphQLRequest(
-          GraphQLFragment("NotificationFragment", context),
-          query
-        )
 
         val request = httpClient.prepareRequest(
-          "graphql",
+          "notifications",
           query.userQuery.externalId,
           query.userQuery.email,
-          query.userQuery.hmac,
-          HttpClient.HttpMethod.Post(inMapper.map(graphQLRequest))
+          query.userQuery.hmac
         )
 
         httpClient.performRequest(request)?.let {
