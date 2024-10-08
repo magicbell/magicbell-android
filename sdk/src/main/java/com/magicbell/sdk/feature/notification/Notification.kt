@@ -1,6 +1,7 @@
 package com.magicbell.sdk.feature.notification
 
 import com.magicbell.sdk.common.serialization.DateSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonNames
@@ -13,6 +14,7 @@ internal data class NotificationEntity(val notification: Notification)
 /**
  * A MagicBell notification object
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 data class Notification(
   val id: String,

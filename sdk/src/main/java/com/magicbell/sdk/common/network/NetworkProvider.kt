@@ -2,6 +2,7 @@ package com.magicbell.sdk.common.network
 
 import com.magicbell.sdk.common.environment.Environment
 import com.magicbell.sdk.common.logger.LogLevel
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -16,6 +17,7 @@ internal class DefaultNetworkModule(logLevel: LogLevel, environment: Environment
   override fun getJsonSerialization(): Json {
     return json
   }
+  @OptIn(ExperimentalSerializationApi::class)
   private val json: Json by lazy {
     Json {
       ignoreUnknownKeys = true
