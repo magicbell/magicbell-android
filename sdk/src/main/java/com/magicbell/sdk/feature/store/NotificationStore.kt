@@ -388,8 +388,8 @@ class NotificationStore internal constructor(
     return executeNotificationAction(
       notification,
       MARK_AS_READ,
-      modifications = { notification ->
-        markNotificationAsRead(notification, predicate)
+      modifications = {
+        markNotificationAsRead(it, predicate)
       })
   }
 
@@ -403,8 +403,8 @@ class NotificationStore internal constructor(
     return executeNotificationAction(
       notification,
       MARK_AS_UNREAD,
-      modifications = { notification ->
-        markNotificationAsUnread(notification, predicate)
+      modifications = {
+        markNotificationAsUnread(it, predicate)
       })
   }
 
@@ -418,8 +418,8 @@ class NotificationStore internal constructor(
     return executeNotificationAction(
       notification,
       ARCHIVE,
-      modifications = { notification ->
-        archiveNotification(notification, predicate)
+      modifications = {
+        archiveNotification(it, predicate)
       })
   }
 
@@ -433,8 +433,8 @@ class NotificationStore internal constructor(
     return executeNotificationAction(
       notification,
       UNARCHIVE,
-      modifications = { notification ->
-        notification.archivedAt = null
+      modifications = {
+        it.archivedAt = null
       })
   }
 
@@ -446,8 +446,8 @@ class NotificationStore internal constructor(
   suspend fun markAllNotificationAsRead(): Result<Unit> {
     return executeAllNotificationsAction(
       MARK_ALL_AS_READ,
-      modifications = { notification ->
-        markNotificationAsRead(notification, predicate)
+      modifications = {
+        markNotificationAsRead(it, predicate)
       })
   }
 
@@ -459,9 +459,9 @@ class NotificationStore internal constructor(
   suspend fun markAllNotificationAsSeen(): Result<Unit> {
     return executeAllNotificationsAction(
       MARK_ALL_AS_SEEN,
-      modifications = { notification ->
-        if (notification.seenAt == null) {
-          notification.seenAt = Date()
+      modifications = {
+        if (it.seenAt == null) {
+          it.seenAt = Date()
           unseenCount -= 1
         }
       })
