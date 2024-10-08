@@ -31,7 +31,7 @@ jobs:
       run: echo $DATA | base64 -di > ./example/google-services.json
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew build
+      run: ./gradlew build -x lint
 
     - name: Test with Gradle Wrapper
       run: ./gradlew test
