@@ -11,7 +11,7 @@ import com.magicbell.sdk.common.network.graphql.GraphQLRequest
 import com.magicbell.sdk.common.network.graphql.GraphQLResponse
 import com.magicbell.sdk.feature.store.StorePage
 
-internal class StoresGraphQLNetworkDataSource(
+internal class StoreNetworkDataSource(
   private val httpClient: HttpClient,
   private val context: Context,
   private val inMapper: GraphQLRequestToGraphQLEntityMapper,

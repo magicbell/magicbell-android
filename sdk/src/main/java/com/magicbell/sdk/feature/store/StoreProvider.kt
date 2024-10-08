@@ -11,7 +11,7 @@ import com.magicbell.sdk.feature.notification.NotificationComponent
 import com.magicbell.sdk.feature.realtime.StoreRealTimeComponent
 import com.magicbell.sdk.feature.store.data.GraphQLRequestToGraphQLEntityMapper
 import com.magicbell.sdk.feature.store.data.GraphQLResponseToStorePageMapper
-import com.magicbell.sdk.feature.store.data.StoresGraphQLNetworkDataSource
+import com.magicbell.sdk.feature.store.data.StoreNetworkDataSource
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageDefaultInteractor
 import com.magicbell.sdk.feature.store.interactor.FetchStorePageInteractor
 import com.magicbell.sdk.feature.store.interactor.GetStorePagesInteractor
@@ -39,7 +39,7 @@ internal class DefaultStoreModule(
 
   private val storeNotificationGraphQLRepository by lazy {
     SingleGetDataSourceRepository(
-      StoresGraphQLNetworkDataSource(
+      StoreNetworkDataSource(
         httpClient,
         context,
         GraphQLRequestToGraphQLEntityMapper(GraphQLRequestEntity.serializer(), json),
