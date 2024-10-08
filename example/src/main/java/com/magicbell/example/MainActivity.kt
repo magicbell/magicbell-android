@@ -228,6 +228,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     store.delete(notification, onCompletion = {}, onFailure = {})
   }
 
+  @SuppressLint("NotifyDataSetChanged")
   override fun onStoreReloaded() {
     notificationsAdapter.notifyDataSetChanged()
   }
@@ -244,6 +245,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
     }
   }
 
+  @SuppressLint("NotifyDataSetChanged")
   override fun onNotificationsDeleted(indexes: List<Int>) {
     if (indexes.size == 1) {
       notificationsAdapter.notifyItemRemoved(indexes.first())
@@ -275,6 +277,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
       (application as ExampleApplication).magicBellClient.setDeviceToken(token)
     }
   }
+
   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
   private val requestPermissionLauncher = registerForActivityResult(
     ActivityResultContracts.RequestPermission(),
@@ -286,6 +289,7 @@ class MainActivity : AppCompatActivity(), NotificationActionsSheetFragment.Actio
       // TODO: Inform user that that your app will not show notifications.
     }
   }
+
   @RequiresApi(Build.VERSION_CODES.TIRAMISU)
   private fun askNotificationPermission() {
     val permission = Manifest.permission.POST_NOTIFICATIONS
