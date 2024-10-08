@@ -19,7 +19,8 @@ internal class StoreNetworkDataSource(
           "notifications",
           query.userQuery.externalId,
           query.userQuery.email,
-          query.userQuery.hmac
+          query.userQuery.hmac,
+          HttpClient.HttpMethod.Get(query.context.asQueryParameters())
         )
 
         httpClient.performRequest(request)?.let {

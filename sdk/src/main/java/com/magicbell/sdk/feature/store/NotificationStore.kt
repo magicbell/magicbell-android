@@ -2,8 +2,6 @@ package com.magicbell.sdk.feature.store
 
 import androidx.annotation.VisibleForTesting
 import com.magicbell.sdk.common.error.MagicBellError
-import com.magicbell.sdk.common.network.graphql.CursorPredicate
-import com.magicbell.sdk.common.network.graphql.CursorPredicate.Cursor.Next
 import com.magicbell.sdk.common.query.UserQuery
 import com.magicbell.sdk.common.threading.MainThread
 import com.magicbell.sdk.feature.notification.Notification
@@ -115,7 +113,7 @@ class NotificationStore internal constructor(
   var hasNextPage: Boolean = true
     private set
 
-  private var nextPageCursor: String? = null
+  private var nextPage: Int = 1
 
   private val mutableContentFlow = MutableSharedFlow<NotificationStoreContentEvent>()
 
@@ -320,8 +318,8 @@ class NotificationStore internal constructor(
   suspend fun refresh(): Result<List<Notification>> {
     return runCatching {
       withContext(coroutineContext) {
-        val cursorPredicate = CursorPredicate(size = pageSize)
-        val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
+        val storePagePredicate = StorePagePredicate(1, pageSize)
+        val storePage = fetchStorePageInteractor(predicate, storePagePredicate, userQuery)
         clear(false)
         configurePagination(storePage)
         configureCount(storePage)
@@ -345,13 +343,8 @@ class NotificationStore internal constructor(
         if (!hasNextPage) {
           return@withContext listOf<Notification>()
         }
-        val cursorPredicate: CursorPredicate = nextPageCursor?.let { after ->
-          CursorPredicate(Next(after), pageSize)
-        } ?: run {
-          CursorPredicate(size = pageSize)
-        }
-
-        val storePage = fetchStorePageInteractor(predicate, cursorPredicate, userQuery)
+        val storePagePredicate = StorePagePredicate(nextPage, pageSize)
+        val storePage = fetchStorePageInteractor(predicate, storePagePredicate, userQuery)
         configurePagination(storePage)
         configureCount(storePage)
 
@@ -482,7 +475,7 @@ class NotificationStore internal constructor(
     setTotalCount(0, notifyChanges)
     setUnreadCount(0, notifyChanges)
     setUnseenCount(0, notifyChanges)
-    nextPageCursor = null
+    nextPage = 1
     setHasNextPage(true)
     if (notifyChanges) {
       val indexes = 0 until notificationCount
@@ -524,9 +517,7 @@ class NotificationStore internal constructor(
   }
 
   private fun configurePagination(storePage: StorePage) {
-    // TODO: pagination
-//    val pageInfo = storePage.pageInfo
-//    nextPageCursor = pageInfo.endCursor
+    nextPage = storePage.currentPage + 1
     setHasNextPage(storePage.currentPage < storePage.totalPages)
   }
 
