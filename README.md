@@ -392,7 +392,7 @@ for (notification in store) {
 }
 
 // As an array
-val notifications = store.notifications()
+val notifications = store.notifications
 ```
 
 Enumeration is also available:
