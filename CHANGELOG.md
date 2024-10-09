@@ -1,5 +1,22 @@
 # MagicBell Android SDK
 
+## 3.0.0
+
+### Major Changes
+
+- f3915c7: Updated topic and category filtering APIs in `StorePredicate`
+
+  Previously one was able to filter for multiple topics and categories, but this functionality is now deprecated in favor of only filtering for a single topic and category.
+  Please reach out to us via the [Community](http://www.magicbell.com/community) if you need the previous functionality.
+
+### Minor Changes
+
+- 54f5bc5: Updated the `targetSDK` of both, `sdk` and `sdk-compose` to version `35`
+
+  Please follow the _Android SDK Upgrade Assistant_ for upgrading your own apps.
+
+- f3915c7: Fixed a bug where a topic filter value would be passed as a category
+
 ## 2.0.0
 
 This release is mostly compatible with version 1.0.0 of the SDK. It introduces two breaking changes though. Please consult the Readme for detailed reference.
