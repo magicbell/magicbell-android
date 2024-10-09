@@ -125,7 +125,7 @@ internal class NotificationStoreTests {
     val notifications = store.fetch().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     notifications.size.shouldBeExactly(defaultEdgeArraySize)
     notifications.forEachIndexed { index, notification ->
@@ -147,7 +147,7 @@ internal class NotificationStoreTests {
     store.fetch()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     storePage.edges.map { it.node.id }.shouldBe(store.notifications.map { it.id })
   }
@@ -170,7 +170,7 @@ internal class NotificationStoreTests {
     }
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(0)
     errorExpected.shouldNotBeNull()
     Unit
@@ -190,7 +190,7 @@ internal class NotificationStoreTests {
     val notifications = store.refresh().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     notifications.size.shouldBeExactly(defaultEdgeArraySize)
     notifications.forEachIndexed { index, notification ->
@@ -216,7 +216,7 @@ internal class NotificationStoreTests {
     }
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(0)
     errorExpected.shouldNotBeNull()
     Unit
@@ -236,14 +236,14 @@ internal class NotificationStoreTests {
     store.fetch().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
 
     // WHEN
     val notifications = store.fetch().getOrThrow()
 
     // THEN
-    coVerify(exactly = 2) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize * 2)
     notifications.size.shouldBeExactly(defaultEdgeArraySize)
     store.mapIndexed { index, notification ->
@@ -265,14 +265,14 @@ internal class NotificationStoreTests {
     store.fetch().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
 
     // WHEN
     val notifications = store.fetch().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     notifications.size.shouldBeExactly(0)
     Unit
@@ -292,7 +292,7 @@ internal class NotificationStoreTests {
     store.refresh().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     storePage.edges.mapIndexed { index, edge ->
       store[index].id.shouldBe(edge.node.id)
@@ -302,7 +302,7 @@ internal class NotificationStoreTests {
     store.refresh().getOrThrow()
 
     // THEN
-    coVerify(exactly = 2) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     storePage.edges.mapIndexed { index, edge ->
       store[index].id.shouldBe(edge.node.id)
@@ -381,8 +381,8 @@ internal class NotificationStoreTests {
     store.delete(store[removeIndex])
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
-    coVerify(exactly = 1) { deleteNotificationInteractor.invoke(removedNotification.id, userQuery) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { deleteNotificationInteractor.invoke(removedNotification.id, userQuery) }
   }
 
   @Test
@@ -411,8 +411,8 @@ internal class NotificationStoreTests {
     }
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
-    coVerify(exactly = 1) { deleteNotificationInteractor.invoke(removedNotification.id, userQuery) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { deleteNotificationInteractor.invoke(removedNotification.id, userQuery) }
     errorExpected.shouldNotBeNull()
     Unit
   }
@@ -640,8 +640,8 @@ internal class NotificationStoreTests {
     store.markAsRead(store[chosenIndex]).getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
-    coVerify(exactly = 1) { actionNotificationInteractor.invoke(MARK_AS_READ, markReadNotification.id, userQuery) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { actionNotificationInteractor.invoke(MARK_AS_READ, markReadNotification.id, userQuery) }
   }
 
   @Test
@@ -667,8 +667,8 @@ internal class NotificationStoreTests {
     }
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
-    coVerify(exactly = 1) { actionNotificationInteractor.invoke(MARK_AS_READ, markReadNotification.id, userQuery) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { actionNotificationInteractor.invoke(MARK_AS_READ, markReadNotification.id, userQuery) }
     errorExpected.shouldNotBeNull()
     Unit
   }
@@ -880,7 +880,7 @@ internal class NotificationStoreTests {
     store.markAsUnread(store[chosenIndex]).getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     coVerify { actionNotificationInteractor.invoke(MARK_AS_UNREAD, markReadNotification.id, userQuery) }
   }
 
@@ -1000,7 +1000,7 @@ internal class NotificationStoreTests {
     store.archive(store[chosenIndex]).getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     coVerify { actionNotificationInteractor.invoke(ARCHIVE, markReadNotification.id, userQuery) }
     confirmVerified(actionNotificationInteractor)
   }
@@ -1045,7 +1045,7 @@ internal class NotificationStoreTests {
     store.unarchive(store[chosenIndex]).getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     coVerify { actionNotificationInteractor.invoke(UNARCHIVE, markReadNotification.id, userQuery) }
     confirmVerified(actionNotificationInteractor)
   }
@@ -1087,7 +1087,7 @@ internal class NotificationStoreTests {
     store.markAllNotificationAsRead().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     coVerify { actionNotificationInteractor.invoke(MARK_ALL_AS_READ, null, userQuery) }
     confirmVerified(actionNotificationInteractor)
   }
@@ -1113,7 +1113,7 @@ internal class NotificationStoreTests {
     }
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     coVerify { actionNotificationInteractor.invoke(MARK_ALL_AS_READ, null, userQuery) }
     confirmVerified(actionNotificationInteractor)
     errorExpected.shouldNotBeNull()
@@ -1218,7 +1218,7 @@ internal class NotificationStoreTests {
     store.markAllNotificationAsSeen().getOrThrow()
 
     // THEN
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     coVerify { actionNotificationInteractor.invoke(MARK_ALL_AS_SEEN, null, userQuery) }
     confirmVerified(actionNotificationInteractor)
   }
@@ -1314,11 +1314,11 @@ internal class NotificationStoreTests {
     val sizeIndexes = indexes.size
     contentObserver.didInsertCounter.shouldBeExactly(1)
     contentObserver.didInsertSpy[0].indexes.shouldBe(indexes)
-    coVerify(exactly = 1) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
 
     store.fetch().getOrThrow()
-    coVerify(exactly = 2) { fetchStorePageInteractor.invoke(any(), any(), any()) }
+    coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize * 2)
     indexes = sizeIndexes.until(store.size).toList()
     contentObserver.didInsertCounter.shouldBeExactly(2)
