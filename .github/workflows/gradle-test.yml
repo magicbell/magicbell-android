@@ -31,7 +31,7 @@ jobs:
       run: echo $DATA | base64 -di > ./example/google-services.json
 
     - name: Build with Gradle Wrapper
-      run: ./gradlew build -x lint
+      run: ./gradlew build
 
     - name: Test with Gradle Wrapper
       run: ./gradlew test
@@ -41,3 +41,11 @@ jobs:
       if: success() || failure() # always run even if the previous step fails
       with:
         report_paths: '**/build/test-results/test*/TEST-*.xml'
+
+    - name: Publish Lint Report
+      uses: yutailang0119/action-android-lint@v4
+      if: success() || failure() # always run even if the previous step fails
+      with:
+        report-path: '**/build/reports/lint-results-*.xml'
+        ignore-warnings: false
+      continue-on-error: false # If annotations contain error of severity, action-android-lint exit 1.
