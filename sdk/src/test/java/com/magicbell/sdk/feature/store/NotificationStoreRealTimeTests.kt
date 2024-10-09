@@ -135,6 +135,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.NewNotification("NewNotification"))
 
     // THEN
+    delay(250)
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     storePage.notifications.mapIndexed { index, notif ->
@@ -160,6 +161,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     store.totalCount.shouldBeExactly(initialCounter.totalCount)
@@ -184,6 +186,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     store[chosenIndex].readAt.shouldNotBeNull()
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
@@ -209,6 +212,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     store[chosenIndex].readAt.shouldNotBeNull()
     store[chosenIndex].seenAt.shouldNotBeNull()
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
@@ -235,6 +239,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification("Not exists"))
 
     // THEN
+    delay(250)
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     store.totalCount.shouldBeExactly(initialCounter.totalCount)
@@ -261,6 +266,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.UnreadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     store[chosenIndex].readAt.shouldBeNull()
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
@@ -287,6 +293,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.UnreadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     store[chosenIndex].readAt.shouldBeNull()
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
@@ -311,6 +318,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.UnreadNotification("Not exists"))
 
     // THEN
+    delay(250)
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     Unit
@@ -334,6 +342,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.DeleteNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.totalCount.shouldBeExactly(initialCounter.totalCount - 1)
     store.unreadCount.shouldBeExactly(initialCounter.unreadCount - 1)
@@ -359,6 +368,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.DeleteNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.unseenCount.shouldBeExactly(initialCounter.unseenCount - 1)
     Unit
@@ -381,6 +391,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.DeleteNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.unseenCount.shouldBeExactly(initialCounter.unseenCount)
     Unit
@@ -402,6 +413,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.DeleteNotification("Not exists"))
 
     // THEN
+    delay(250)
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.totalCount.shouldBeExactly(initialCounter.totalCount)
     store.unreadCount.shouldBeExactly(initialCounter.unreadCount)
@@ -424,6 +436,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadAllNotification)
 
     // THEN
+    delay(250)
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     store.forEach { notification ->
@@ -446,6 +459,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.SeenAllNotification)
 
     // THEN
+    delay(250)
     coVerify(exactly = 2, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize)
     store.forEach { notification ->
@@ -471,7 +485,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.NewNotification("NewNotification"))
 
     // THEN
-    delay(100)
+    delay(250)
     contentObserver.reloadStoreCounter.shouldBeExactly(1)
     contentObserver.reloadStoreSpy.shouldNotBeEmpty()
     Unit
@@ -495,6 +509,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     contentObserver.reloadStoreCounter.shouldBeExactly(0)
     contentObserver.didChangeCounter.shouldBeExactly(1)
     contentObserver.didChangeSpy[0].indexes.shouldBe(listOf(chosenIndex))
@@ -517,7 +532,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification("Not exists"))
 
     // THEN
-    delay(100)
+    delay(250)
     contentObserver.reloadStoreCounter.shouldBeExactly(1)
     contentObserver.didChangeCounter.shouldBeExactly(0)
     Unit
@@ -542,6 +557,7 @@ internal class NotificationStoreRealTimeTests {
 
 
     // THEN
+    delay(250)
     contentObserver.reloadStoreCounter.shouldBeExactly(0)
     contentObserver.didChangeCounter.shouldBeExactly(0)
     contentObserver.didDeleteCounter.shouldBeExactly(1)
@@ -566,6 +582,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.DeleteNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     contentObserver.reloadStoreCounter.shouldBeExactly(0)
     contentObserver.didChangeCounter.shouldBeExactly(0)
     contentObserver.didDeleteCounter.shouldBeExactly(1)
@@ -590,6 +607,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadAllNotification)
 
     // THEN
+    delay(250)
     contentObserver.reloadStoreCounter.shouldBeExactly(0)
     contentObserver.didChangeCounter.shouldBeExactly(0)
     contentObserver.didDeleteCounter.shouldBeExactly(1)
@@ -618,6 +636,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.SeenAllNotification)
 
     // THEN
+    delay(250)
     contentObserver.reloadStoreCounter.shouldBeExactly(0)
     contentObserver.didChangeCounter.shouldBeExactly(0)
     contentObserver.didDeleteCounter.shouldBeExactly(1)
@@ -645,7 +664,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.NewNotification("NewId"))
 
     // THEN
-    delay(100)
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(2)
     countObserver.unreadCountCounter.shouldBeExactly(2)
     countObserver.unseenCountCounter.shouldBeExactly(2)
@@ -672,6 +691,7 @@ internal class NotificationStoreRealTimeTests {
 
 
     // THEN
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(1)
     countObserver.totalCountSpy[0].count.shouldBeExactly(store.totalCount)
     countObserver.unreadCountCounter.shouldBeExactly(2)
@@ -698,7 +718,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
-    delay(100)
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(1)
     countObserver.totalCountSpy[0].count.shouldBeExactly(store.size)
     countObserver.unreadCountCounter.shouldBeExactly(0)
@@ -724,6 +744,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(1)
     countObserver.totalCountSpy[0].count.shouldBeExactly(store.size)
     countObserver.unseenCountCounter.shouldBeExactly(2)
@@ -750,6 +771,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(1)
     countObserver.totalCountSpy[0].count.shouldBeExactly(store.size)
     countObserver.unseenCountCounter.shouldBeExactly(0)
@@ -775,7 +797,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
-    delay(100)
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(2)
     countObserver.unreadCountCounter.shouldBeExactly(2)
     countObserver.unreadCountSpy[0].count.shouldBeExactly(initialCounts.unreadCount)
@@ -800,6 +822,8 @@ internal class NotificationStoreRealTimeTests {
     val chosenIndex = anyIndexForDefaultEdgeArraySize
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
+    // THEN
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(1)
     countObserver.unreadCountCounter.shouldBeExactly(0)
     Unit
@@ -824,6 +848,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(2)
     countObserver.totalCountSpy[0].count.shouldBeExactly(initialCounts.totalCount)
     countObserver.totalCountSpy[1].count.shouldBeExactly(initialCounts.totalCount - 1)
@@ -852,6 +877,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadNotification(chosenIndex.toString()))
 
     // THEN
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(2)
     countObserver.totalCountSpy[0].count.shouldBeExactly(initialCounts.totalCount)
     countObserver.totalCountSpy[1].count.shouldBeExactly(initialCounts.totalCount - 1)
@@ -878,7 +904,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.ReadAllNotification)
 
     // THEN
-    delay(100)
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(2)
     countObserver.unreadCountCounter.shouldBeExactly(1)
     countObserver.unreadCountSpy[0].count.shouldBeExactly(initialCounts.unreadCount)
@@ -905,7 +931,7 @@ internal class NotificationStoreRealTimeTests {
     storeRealTime.processMessage(RealTimeEventMock.SeenAllNotification)
 
     // THEN
-    delay(100)
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(2)
     countObserver.unreadCountCounter.shouldBeExactly(1)
     countObserver.unreadCountSpy[0].count.shouldBeExactly(initialCounts.unreadCount)
@@ -932,6 +958,7 @@ internal class NotificationStoreRealTimeTests {
     store.fetch().getOrThrow()
 
     // THEN
+    delay(250)
     countObserver.totalCountCounter.shouldBeExactly(0)
     Unit
   }
@@ -954,6 +981,7 @@ internal class NotificationStoreRealTimeTests {
     store.fetch().getOrThrow()
 
     // THEN
+    delay(250)
     contentObserver.didInsertCounter.shouldBeExactly(0)
     Unit
   }
@@ -977,6 +1005,7 @@ internal class NotificationStoreRealTimeTests {
     )
 
     // THEN
+    delay(250)
     coVerify(exactly = 1, timeout = 1000) { fetchStorePageInteractor.invoke(any(), any(), any()) }
     store.size.shouldBeExactly(defaultEdgeArraySize - 1)
     store.totalCount.shouldBeExactly(initialCounter.totalCount - 1)
