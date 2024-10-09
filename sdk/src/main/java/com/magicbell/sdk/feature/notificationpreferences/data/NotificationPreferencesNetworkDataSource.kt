@@ -23,7 +23,7 @@ internal class NotificationPreferencesNetworkDataSource(
           query.externalId,
           query.email,
           query.hmac,
-          HttpClient.HttpMethod.Get,
+          HttpClient.HttpMethod.Get(),
           arrayOf(Pair("accept-version", "v2"))
         )
 

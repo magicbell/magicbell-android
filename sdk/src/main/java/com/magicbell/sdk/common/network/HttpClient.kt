@@ -4,28 +4,31 @@ import com.magicbell.sdk.common.environment.Environment
 import com.magicbell.sdk.common.error.NetworkErrorEntity
 import com.magicbell.sdk.common.error.NetworkException
 import kotlinx.serialization.json.Json
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 
 typealias HttpHeaders = Array<HeaderNameAndValue>
 typealias HeaderNameAndValue = Pair<String, String>
+typealias QueryParameters = List<Pair<String, String>>
+
 internal interface HttpClient {
   fun prepareRequest(
     path: String,
     externalId: String?,
     email: String?,
     hmac: String?,
-    httpMethod: HttpMethod = HttpMethod.Get,
+    httpMethod: HttpMethod = HttpMethod.Get(),
     additionalHeaders: HttpHeaders = emptyArray()
   ): Request
 
   suspend fun performRequest(request: Request): String?
 
-  sealed class HttpMethod(val name: String, val body: String? = null) {
-    object Get: HttpMethod("GET")
-    class Post(body: String = ""): HttpMethod("POST", body)
-    class Put(body: String = ""): HttpMethod("PUT", body)
+  sealed class HttpMethod(val name: String, val queryParams: QueryParameters? = null, val body: String? = null) {
+    class Get(queryParams: QueryParameters = listOf()) : HttpMethod("GET", queryParams = queryParams)
+    class Post(body: String = ""): HttpMethod("POST", body = body)
+    class Put(body: String = ""): HttpMethod("PUT", body = body)
     object Delete: HttpMethod("DELETE")
   }
 }
@@ -37,8 +40,16 @@ internal class DefaultHttpClient(
 ) : HttpClient {
 
   override fun prepareRequest(path: String, externalId: String?, email: String?, hmac: String?, httpMethod: HttpClient.HttpMethod, additionalHeaders: HttpHeaders): Request {
+    val urlBuilder = "${environment.baseUrl}/$path".toHttpUrlOrNull()!!.newBuilder()
+
+    httpMethod.queryParams?.let {
+      for ((key, value) in it) {
+        urlBuilder.addQueryParameter(key, value)
+      }
+    }
+
     val request = Request.Builder()
-      .url("${environment.baseUrl}/$path")
+      .url(urlBuilder.build())
       .addHeader("X-MAGICBELL-API-KEY", environment.apiKey)
 
     hmac?.also {

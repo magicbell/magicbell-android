@@ -67,8 +67,8 @@ internal class NotificationMotherObject {
         }
       }
 
-      val category = predicate.categories.firstOrNull()
-      val topic = predicate.topics.firstOrNull()
+      val category = predicate.category
+      val topic = predicate.topic
 
       return createNotification(id ?: randomString(), read, seen, archived, category, topic)
     }

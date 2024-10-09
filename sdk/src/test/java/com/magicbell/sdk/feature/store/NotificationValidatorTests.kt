@@ -145,7 +145,7 @@ class NotificationValidatorTests {
 
   @Test
   fun test_predicate_category() {
-    val predicate = StorePredicate(categories = listOf("the-category"))
+    val predicate = StorePredicate(category = "the-category")
     for (notification in allNotifications(category = "the-category")) {
       predicate.match(notification).shouldBeTrue()
     }
@@ -159,7 +159,7 @@ class NotificationValidatorTests {
 
   @Test
   fun test_predicate_topic() {
-    val predicate = StorePredicate(topics = listOf("the-topic"))
+    val predicate = StorePredicate(topic = "the-topic")
     for (notification in allNotifications(topic = "the-topic")) {
       predicate.match(notification).shouldBeTrue()
     }

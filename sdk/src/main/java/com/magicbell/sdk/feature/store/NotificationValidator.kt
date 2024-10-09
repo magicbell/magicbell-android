@@ -41,22 +41,12 @@ class NotificationValidator(private val storePredicate: StorePredicate) {
   }
 
   private fun validateCategory(notification: Notification): Boolean {
-    return if (storePredicate.categories.isEmpty()) {
-      true
-    } else if (notification.category != null) {
-      storePredicate.categories.contains(notification.category)
-    } else {
-      false
-    }
+    return storePredicate.category == null ||
+            storePredicate.category == notification.category
   }
 
   private fun validateTopic(notification: Notification): Boolean {
-    return if (storePredicate.topics.isEmpty()) {
-      true
-    } else if (notification.topic != null) {
-      storePredicate.topics.contains(notification.topic)
-    } else {
-      false
-    }
+    return storePredicate.topic == null ||
+            storePredicate.topic == notification.topic
   }
 }

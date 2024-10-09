@@ -129,19 +129,19 @@ fun StoreDirector.forRead(): NotificationStore {
 }
 
 /**
- * Return the store for notifications with the given categories
+ * Return the store for notifications with the given category
  *
- * @param categories The list of categories
+ * @param category The category
  */
-fun StoreDirector.forCategories(categories: List<String>): NotificationStore {
-  return build(StorePredicate(categories = categories))
+fun StoreDirector.forCategory(category: String): NotificationStore {
+  return build(StorePredicate(category = category))
 }
 
 /**
- * Return the store for notifications with the given topics
+ * Return the store for notifications with the given topic
  *
- * @param topics The list of topics
+ * @param topic The topic
  */
-fun StoreDirector.forTopics(topics: List<String>): NotificationStore {
-  return build(StorePredicate(topics = topics))
+fun StoreDirector.forTopics(topic: String): NotificationStore {
+  return build(StorePredicate(topic = topic))
 }
