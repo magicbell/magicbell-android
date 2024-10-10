@@ -46,7 +46,7 @@ fun NotificationStore.delete(
 
 fun NotificationStore.markAsRead(
   notification: Notification,
-  targetScope: CoroutineScope = notificationStoreScope,
+  @Suppress("UNUSED_PARAMETER") targetScope: CoroutineScope = notificationStoreScope,
   onSuccess: (Notification) -> Unit,
   onFailure: (Throwable) -> Unit,
 ) {
