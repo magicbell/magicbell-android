@@ -1,103 +1,36 @@
-apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
-version = '3.0.0'
-group = 'com.magicbell'
+mavenPublishing {
+  coordinates("com.magicbell", null, "3.0.0")
 
-def isReleaseBuild() {
-  return version.contains("SNAPSHOT") == false
-}
+  // Configure code signing constants according to
+  // https://vanniktech.github.io/gradle-maven-publish-plugin/central/#secrets
+  signAllPublications()
 
-def getReleaseRepositoryUrl() {
-  return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
-      : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
-}
+  pom {
+    name = "MagicBell"
+    description = 'Official MagicBell SDK for Android. The notification inbox for your product.'
+    url = 'https://www.magicbell.com/'
 
-def getSnapshotRepositoryUrl() {
-  return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
-      : "https://s01.oss.sonatype.org/content/repositories/snapshots/"
-}
-
-def getRepositoryUsername() {
-  return hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
-}
-
-def getRepositoryPassword() {
-  return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
-}
-
-def getGpgKey() {
-  return hasProperty('SIGNING_KEY') ? SIGNING_KEY : ""
-}
-
-def getGpgPassphrase() {
-  return hasProperty('PASSPHRASE') ? PASSPHRASE : ""
-}
-
-def configurePom(pom) {
-  pom.name = 'MagicBell'
-  pom.description = 'Official MagicBell SDK for Android. The notification inbox for your product.'
-  pom.url = 'https://www.magicbell.com/'
-
-  pom.scm {
-    url = 'https://github.com/magicbell/magicbell-android.git'
-    connection = 'scm:git@github.com:magicbell/magicbell-android.git'
-    developerConnection = 'scm:git@github.com:magicbell/magicbell-android.git'
-  }
-
-  pom.licenses {
-    license {
-      name = 'Custom'
-      url = 'https://github.com/magicbell/magicbell-android/blob/main/LICENSE'
-      distribution = 'repo'
+    scm {
+      url = 'https://github.com/magicbell/magicbell-android.git'
+      connection = 'scm:git@github.com:magicbell/magicbell-android.git'
+      developerConnection = 'scm:git@github.com:magicbell/magicbell-android.git'
     }
-  }
 
-  pom.developers {
-    developer {
-      id = 'magicbell'
-      name = 'MagicBell'
-    }
-  }
-}
-
-afterEvaluate { project ->
-  publishing {
-
-    repositories {
-      maven {
-        def releasesRepoUrl = getReleaseRepositoryUrl()
-        def snapshotsRepoUrl = getSnapshotRepositoryUrl()
-        url = isReleaseBuild() ? releasesRepoUrl : snapshotsRepoUrl
-
-        credentials(PasswordCredentials) {
-          username = getRepositoryUsername()
-          password = getRepositoryPassword()
-        }
+    licenses {
+      license {
+        name = 'Custom'
+        url = 'https://github.com/magicbell/magicbell-android/blob/main/LICENSE'
+        distribution = 'repo'
       }
     }
-  }
 
-  task javadocJar(type: Jar) {
-    archiveClassifier.set("javadoc")
-  }
-
-  publishing.publications.all { publication ->
-    publication.groupId = group
-    publication.version = version
-
-    artifact(javadocJar) // TODO include real documentation
-
-    configurePom(publication.pom)
-  }
-
-  signing {
-    required { isReleaseBuild() }
-    def gpgKey = getGpgKey()
-    def gpgPassphrase = getGpgPassphrase()
-    if (!gpgKey.isEmpty() && !gpgPassphrase.isEmpty()) {
-      useInMemoryPgpKeys(gpgKey, gpgPassphrase)
+    developers {
+      developer {
+        id = 'magicbell'
+        name = 'MagicBell'
+      }
     }
-    sign(publishing.publications)
   }
 }
