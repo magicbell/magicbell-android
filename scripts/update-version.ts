@@ -23,8 +23,8 @@ const replacements = [
   },
   {
     files: 'gradle-mvn-push.gradle',
-    from: /version = '\d\.\d\.\d'/g,
-    to: `version = '${version}'`,
+    from: /coordinates\("com.magicbell", null, "\d\.\d\.\d"\)/g,
+    to: `coordinates("com.magicbell", null, "${version}")`,
   }
 ]
 
