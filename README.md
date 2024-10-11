@@ -74,9 +74,9 @@ This repo also contains a full blown example. To run the project:
 Add the dependency in your build.gradle file.
 ```groovy
   // MagicBell SDK
-  implementation 'com.magicbell:magicbell-sdk:2.0.0'
+  implementation 'com.magicbell:magicbell-sdk:3.0.0'
   // MagicBell Compose
-  implementation 'com.magicbell:magicbell-sdk-compose:2.0.0'
+  implementation 'com.magicbell:magicbell-sdk-compose:3.0.0'
 ```
 
 ## The MagicBell Client
