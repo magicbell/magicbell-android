@@ -3,13 +3,15 @@ on:
   push:
     branches:
       - main
-      - ullrich/add-changesets
+      - ullrich/publish-via-ci
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # allows the action to create a release
     steps:
       - uses: actions/checkout@v4
         with:
@@ -19,15 +21,16 @@ jobs:
         with:
           node-version: 20
 
-      - uses: bahmutov/npm-install@v1
+      # - uses: bahmutov/npm-install@v1
 
       - name: Create release PR or publish release
-        uses: changesets/action@v1
-        with:
-          version: yarn changeset version
-          publish: yarn changeset publish
-          commit: 'chore: version package'
-          title: 'chore: version package'
-          createGithubReleases: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.BELLA_ACTION_TOKEN }}
+        run: echo "FAKE - RELEASE"
+      #   uses: changesets/action@v1
+      #   with:
+      #     version: yarn changeset version
+      #     publish: yarn changeset publish
+      #     commit: 'chore: version package'
+      #     title: 'chore: version package'
+      #     createGithubReleases: true
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.BELLA_ACTION_TOKEN }}

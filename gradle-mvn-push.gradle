@@ -9,29 +9,27 @@ def isReleaseBuild() {
 }
 
 def getReleaseRepositoryUrl() {
-  return hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
-      : "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+  return findProperty('RELEASE_REPOSITORY_URL') ?: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
 }
 
 def getSnapshotRepositoryUrl() {
-  return hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
-      : "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+  return findProperty('SNAPSHOT_REPOSITORY_URL') ?: "https://s01.oss.sonatype.org/content/repositories/snapshots/"
 }
 
 def getRepositoryUsername() {
-  return hasProperty('NEXUS_USERNAME') ? NEXUS_USERNAME : ""
+  return findProperty('NEXUS_USERNAME') ?: ""
 }
 
 def getRepositoryPassword() {
-  return hasProperty('NEXUS_PASSWORD') ? NEXUS_PASSWORD : ""
+  return findProperty('NEXUS_PASSWORD') ?: ""
 }
 
 def getGpgKey() {
-  return hasProperty('SIGNING_KEY') ? SIGNING_KEY : ""
+  return findProperty('SIGNING_KEY') ?: ""
 }
 
 def getGpgPassphrase() {
-  return hasProperty('PASSPHRASE') ? PASSPHRASE : ""
+  return findProperty('PASSPHRASE') ?: ""
 }
 
 def configurePom(pom) {
@@ -92,6 +90,9 @@ afterEvaluate { project ->
   }
 
   signing {
+    logger.quiet('A message which is logged at QUIET level ' +
+    getRepositoryUsername())
+
     required { isReleaseBuild() }
     def gpgKey = getGpgKey()
     def gpgPassphrase = getGpgPassphrase()

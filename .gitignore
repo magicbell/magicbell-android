@@ -27,6 +27,9 @@ output.json
 # Google Services (e.g. APIs or Firebase)
 google-services.json
 
+# Maven publishing secret
+publish-mvn.asc
+
 # Android Profiling
 *.hprof
 
