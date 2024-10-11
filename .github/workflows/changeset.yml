@@ -1,9 +1,7 @@
 name: Changeset
 on:
   push:
-    branches:
-      - main
-      - ullrich/add-changesets
+    branches: [ "main" ]
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
