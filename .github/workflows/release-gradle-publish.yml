@@ -43,6 +43,4 @@ jobs:
     - name: Publish to Maven
       run: |
         ./gradlew \
-          -PNEXUS_USERNAME="${{ secrets.NEXUS_USERNAME }}" \
-          -PNEXUS_PASSWORD="${{ secrets.NEXUS_PASSWORD }}" \
           sdk:publish sdk-compose:publish
